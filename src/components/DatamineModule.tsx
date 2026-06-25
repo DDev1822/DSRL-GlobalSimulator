@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { AlertTriangle, CheckCircle2, Layers, Upload } from 'lucide-react';
 import DataminePhaseViewer, {
   type HoveredGeometry,
+  type ViewerColorMode,
 } from './DataminePhaseViewer';
-import type { PhaseGeometryData } from '../types/datamine';
-import { parsePhase6Geometry } from '../utils/datamineParser';
+import {
+  parsePhase6Geometry,
+  type PhaseGeometryData,
+} from '../utils/datamineParser';
 import { Metric, Panel } from './ui';
-
-type ColorMode = 'group' | 'elevation';
 
 export default function DatamineModule() {
   const [geometry, setGeometry] = useState<PhaseGeometryData | null>(null);
@@ -15,7 +16,7 @@ export default function DatamineModule() {
   const [error, setError] = useState<string | null>(null);
   const [showPit, setShowPit] = useState(true);
   const [showWireframe, setShowWireframe] = useState(false);
-  const [colorMode, setColorMode] = useState<ColorMode>('group');
+  const [colorMode, setColorMode] = useState<ViewerColorMode>('component');
   const [hovered, setHovered] = useState<HoveredGeometry | null>(null);
 
   const loadGeometry = async () => {
@@ -95,10 +96,12 @@ export default function DatamineModule() {
 
         <select
           value={colorMode}
-          onChange={(event) => setColorMode(event.target.value as ColorMode)}
+          onChange={(event) =>
+            setColorMode(event.target.value as ViewerColorMode)
+          }
           className="rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-bold text-slate-300"
         >
-          <option value="group">Color por componente</option>
+          <option value="component">Color por componente</option>
           <option value="elevation">Color por elevación</option>
         </select>
       </div>
@@ -107,10 +110,13 @@ export default function DatamineModule() {
         <div className="mb-4 flex items-start gap-3 rounded-lg border border-rose-900/60 bg-rose-950/30 p-4 text-sm text-rose-200">
           <AlertTriangle className="mt-0.5 shrink-0" size={18} />
           <div>
-            <div className="font-black">No fue posible cargar la geometría Datamine</div>
+            <div className="font-black">
+              No fue posible cargar la geometría Datamine
+            </div>
             <div className="mt-1 text-xs text-rose-300/80">{error}</div>
             <div className="mt-2 text-xs text-slate-400">
-              Verifica que los dos CSV estén dentro de <code>public/data</code>.
+              Verifica que los dos CSV estén dentro de{' '}
+              <code>public/data</code>.
             </div>
           </div>
         </div>
@@ -124,12 +130,19 @@ export default function DatamineModule() {
             </div>
           ) : (
             <DataminePhaseViewer
-              geometry={geometry}
+              geometryData={geometry}
               showTopography={false}
               showPit={showPit}
               showStrings={false}
               showWireframe={showWireframe}
               colorMode={colorMode}
+              phaseStep={6}
+              economicMetrics={{
+                npv: 0,
+                reserves: 0,
+                grade: 0,
+                stripRatio: 0,
+              }}
               onTriangleHover={setHovered}
             />
           )}
@@ -158,17 +171,27 @@ export default function DatamineModule() {
               />
 
               <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 font-mono text-[11px] leading-6 text-slate-400">
-                <div>X: {geometry.bounds.minX.toFixed(2)} – {geometry.bounds.maxX.toFixed(2)}</div>
-                <div>Y: {geometry.bounds.minY.toFixed(2)} – {geometry.bounds.maxY.toFixed(2)}</div>
-                <div>Z: {geometry.bounds.minZ.toFixed(2)} – {geometry.bounds.maxZ.toFixed(2)}</div>
+                <div>
+                  X: {geometry.bounds.minX.toFixed(2)} –{' '}
+                  {geometry.bounds.maxX.toFixed(2)}
+                </div>
+                <div>
+                  Y: {geometry.bounds.minY.toFixed(2)} –{' '}
+                  {geometry.bounds.maxY.toFixed(2)}
+                </div>
+                <div>
+                  Z: {geometry.bounds.minZ.toFixed(2)} –{' '}
+                  {geometry.bounds.maxZ.toFixed(2)}
+                </div>
               </div>
 
               {hovered && (
                 <div className="rounded-lg border border-cyan-900/60 bg-cyan-950/20 p-3 font-mono text-xs text-cyan-200">
                   <div className="mb-1 font-black">{hovered.group}</div>
-                  <div>X local: {hovered.position.x.toFixed(2)}</div>
-                  <div>Y local: {hovered.position.y.toFixed(2)}</div>
-                  <div>Z local: {hovered.position.z.toFixed(2)}</div>
+                  <div>Triángulo: {hovered.triangleId}</div>
+                  <div>Este: {hovered.easting.toFixed(2)}</div>
+                  <div>Norte: {hovered.northing.toFixed(2)}</div>
+                  <div>Elevación: {hovered.elevation.toFixed(2)}</div>
                 </div>
               )}
             </>
