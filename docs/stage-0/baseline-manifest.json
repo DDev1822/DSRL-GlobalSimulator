@@ -1,0 +1,57 @@
+{
+  "stage": "0",
+  "name": "Baseline Freeze and Audit",
+  "sourceBranch": "fix/original-figma-datamine-viewer",
+  "sourceCommit": "d754b885a99699b0a047d9c5ab4a2059c899355d",
+  "auditBranch": "chore/stage-0-baseline-audit",
+  "repository": "DDev1822/DSRL-GlobalSimulator",
+  "application": {
+    "entryPoint": "src/App.tsx",
+    "generatedSourceRequired": false,
+    "conceptualPitActive": false,
+    "datamineOnly": true
+  },
+  "geometry": {
+    "pointsFile": "public/data/Design Pit_pt.csv",
+    "trianglesFile": "public/data/Design Pit_tr.csv",
+    "expectedPoints": 7995,
+    "expectedTriangles": 15683,
+    "expectedInvalidPidTriangles": 0,
+    "bounds": {
+      "minX": 762885.02880859,
+      "maxX": 763707.10522461,
+      "minY": 9251792.77932739,
+      "maxY": 9252615.27172852,
+      "minZ": 3620,
+      "maxZ": 3750.13247037
+    }
+  },
+  "requiredFeatures": {
+    "interactiveEconomicCurve": true,
+    "movingCutoffGuide": true,
+    "movingTonnageGradeNpvMarkers": true,
+    "datamineOrbitZoom": true,
+    "wireframe": true,
+    "phaseEvolutionF1ToF6": true,
+    "phasePlayback": true,
+    "economicLayers": [
+      "component",
+      "phase",
+      "elevation",
+      "van_cumulative",
+      "van_incremental",
+      "reserves",
+      "grade",
+      "strip_ratio"
+    ],
+    "cursorReadoutOutsideViewer": true,
+    "fullscreen": true
+  },
+  "knownLimitations": [
+    "Only one final Datamine pit geometry is currently available.",
+    "F1-F6 is a visual progression over the final geometry, not six independent Datamine surfaces.",
+    "Current spatial economic layers are analytical proxies based on global values, not block-model economics.",
+    "Topography and missing pit phases will be integrated in later implementation stages."
+  ],
+  "verificationCommand": "npm run verify:baseline"
+}
