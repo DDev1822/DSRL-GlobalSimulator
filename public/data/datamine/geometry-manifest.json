@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "coordinateSystem": "LOCAL_MINE_GRID",
+  "units": "metres",
+  "topography": {
+    "id": "TOPOGRAPHY",
+    "name": "Topografía base",
+    "type": "topography",
+    "pointsFile": "/data/Topos_pt.csv",
+    "trianglesFile": "/data/Topos_tr.csv",
+    "enabled": true
+  },
+  "phases": [
+    {
+      "id": "PIT_F1",
+      "name": "Pit F1",
+      "phase": 1,
+      "type": "pit",
+      "pointsFile": "/data/P01pt.csv",
+      "trianglesFile": "/data/P01tr.csv",
+      "enabled": true
+    },
+    {
+      "id": "PIT_F2",
+      "name": "Pit F2",
+      "phase": 2,
+      "type": "pit",
+      "pointsFile": "/data/P02pt.csv",
+      "trianglesFile": "/data/P02tr.csv",
+      "enabled": true
+    },
+    {
+      "id": "PIT_F3",
+      "name": "Pit F3",
+      "phase": 3,
+      "type": "pit",
+      "pointsFile": "/data/P03pt.csv",
+      "trianglesFile": "/data/P03tr.csv",
+      "enabled": true
+    },
+    {
+      "id": "PIT_F4",
+      "name": "Pit F4",
+      "phase": 4,
+      "type": "pit",
+      "pointsFile": "/data/P04pt.csv",
+      "trianglesFile": "/data/P04tr.csv",
+      "enabled": true
+    },
+    {
+      "id": "PIT_F5",
+      "name": "Pit F5",
+      "phase": 5,
+      "type": "pit",
+      "pointsFile": "/data/P05pt.csv",
+      "trianglesFile": "/data/P05tr.csv",
+      "enabled": true
+    },
+    {
+      "id": "PIT_F6",
+      "name": "Pit F6",
+      "phase": 6,
+      "type": "pit",
+      "pointsFile": "/data/P06pt.csv",
+      "trianglesFile": "/data/P06tr.csv",
+      "enabled": true
+    }
+  ]
+}
