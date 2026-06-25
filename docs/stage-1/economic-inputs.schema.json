@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drillstone.local/schemas/economic-inputs.schema.json",
+  "title": "DSRL Global Simulator Economic Inputs",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "metalPriceUsdPerTonne",
+    "maxResourceMt",
+    "wacc",
+    "annualProductionMt",
+    "stripRatio",
+    "miningCostUsdPerTonneMoved",
+    "processingCostUsdPerTonneOre",
+    "baseGradePercent",
+    "mineRecovery",
+    "plantRecovery",
+    "initialCapexUsdM",
+    "sustainingCapexUsdMPerYear",
+    "payableFactor",
+    "royaltyRate",
+    "taxRate",
+    "cutoffStepPercent",
+    "resourceCurveExponent",
+    "gradeResponseExponent",
+    "maxCutoffMultiplier"
+  ],
+  "properties": {
+    "metalPriceUsdPerTonne": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 8800,
+      "description": "Precio del metal en US$/t de metal."
+    },
+    "maxResourceMt": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 1500,
+      "description": "Recurso máximo disponible en Mt de mineral."
+    },
+    "wacc": {
+      "type": "number",
+      "minimum": 0,
+      "exclusiveMaximum": 1,
+      "default": 0.08,
+      "description": "Tasa de descuento en fracción decimal."
+    },
+    "annualProductionMt": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 40,
+      "description": "Producción anual de mineral en Mt/año."
+    },
+    "stripRatio": {
+      "type": "number",
+      "minimum": 0,
+      "default": 1.5,
+      "description": "Toneladas de estéril por tonelada de mineral."
+    },
+    "miningCostUsdPerTonneMoved": {
+      "type": "number",
+      "minimum": 0,
+      "default": 2.5,
+      "description": "Costo mina en US$/t total movida."
+    },
+    "processingCostUsdPerTonneOre": {
+      "type": "number",
+      "minimum": 0,
+      "default": 7.5,
+      "description": "Costo de planta en US$/t de mineral procesado."
+    },
+    "baseGradePercent": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 0.65,
+      "description": "Ley base del recurso en porcentaje."
+    },
+    "mineRecovery": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.95
+    },
+    "plantRecovery": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.88
+    },
+    "initialCapexUsdM": {
+      "type": "number",
+      "minimum": 0,
+      "default": 2800,
+      "description": "CAPEX inicial en millones de dólares."
+    },
+    "sustainingCapexUsdMPerYear": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "description": "CAPEX anual de sostenimiento en millones de dólares."
+    },
+    "payableFactor": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.8
+    },
+    "royaltyRate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0
+    },
+    "taxRate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.3
+    },
+    "cutoffStepPercent": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 0.01
+    },
+    "resourceCurveExponent": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 2
+    },
+    "gradeResponseExponent": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 0.85
+    },
+    "maxCutoffMultiplier": {
+      "type": "number",
+      "exclusiveMinimum": 1,
+      "default": 2.5
+    }
+  }
+}
