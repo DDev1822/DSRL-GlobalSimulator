@@ -67,7 +67,11 @@ function buildMeshGeometry(
 
       if (colorMode === 'elevation') {
         const ratio = (point.z - bounds.minZ) / elevationRange;
-        const elevationColor = new THREE.Color().setHSL(0.62 - ratio * 0.52, 0.82, 0.52);
+        const elevationColor = new THREE.Color().setHSL(
+          0.62 - ratio * 0.52,
+          0.82,
+          0.52,
+        );
         colors.push(elevationColor.r, elevationColor.g, elevationColor.b);
       } else {
         colors.push(solidColor.r, solidColor.g, solidColor.b);
@@ -148,6 +152,61 @@ function TriangleMesh({
   );
 }
 
+function StringLine({
+  cutString,
+  bounds,
+  onHover,
+}: {
+  cutString: CutString;
+  bounds: GeometryBounds;
+  onHover?: (data: { stringId: number } | null) => void;
+}) {
+  const lineObject = useMemo(() => {
+    const center = getCenter(bounds);
+    const positions = cutString.points.flatMap((point) => [
+      point.x - center.x,
+      point.z - center.z,
+      -(point.y - center.y),
+    ]);
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(positions, 3),
+    );
+
+    const material = new THREE.LineBasicMaterial({ color: '#f59e0b' });
+    return new THREE.Line(geometry, material);
+  }, [cutString, bounds]);
+
+  useEffect(
+    () => () => {
+      lineObject.geometry.dispose();
+      const material = lineObject.material;
+      if (Array.isArray(material)) {
+        material.forEach((item) => item.dispose());
+      } else {
+        material.dispose();
+      }
+    },
+    [lineObject],
+  );
+
+  return (
+    <primitive
+      object={lineObject}
+      onPointerOver={(event: ThreeEvent<PointerEvent>) => {
+        event.stopPropagation();
+        onHover?.({ stringId: cutString.id });
+      }}
+      onPointerOut={(event: ThreeEvent<PointerEvent>) => {
+        event.stopPropagation();
+        onHover?.(null);
+      }}
+    />
+  );
+}
+
 function StringLines({
   strings,
   bounds,
@@ -159,41 +218,18 @@ function StringLines({
   visible: boolean;
   onHover?: (data: { stringId: number } | null) => void;
 }) {
-  const center = getCenter(bounds);
   if (!visible) return null;
 
   return (
     <group>
-      {strings.map((string) => {
-        const positions = string.points.flatMap((point) => [
-          point.x - center.x,
-          point.z - center.z,
-          -(point.y - center.y),
-        ]);
-
-        const lineGeometry = new THREE.BufferGeometry();
-        lineGeometry.setAttribute(
-          'position',
-          new THREE.Float32BufferAttribute(positions, 3),
-        );
-
-        return (
-          <line
-            key={string.id}
-            geometry={lineGeometry}
-            onPointerOver={(event) => {
-              event.stopPropagation();
-              onHover?.({ stringId: string.id });
-            }}
-            onPointerOut={(event) => {
-              event.stopPropagation();
-              onHover?.(null);
-            }}
-          >
-            <lineBasicMaterial color="#f59e0b" />
-          </line>
-        );
-      })}
+      {strings.map((cutString) => (
+        <StringLine
+          key={cutString.id}
+          cutString={cutString}
+          bounds={bounds}
+          onHover={onHover}
+        />
+      ))}
     </group>
   );
 }
@@ -228,7 +264,11 @@ export default function DataminePhaseViewer({
       <Canvas>
         <PerspectiveCamera
           makeDefault
-          position={[cameraDistance * 0.75, cameraDistance * 0.55, cameraDistance * 0.75]}
+          position={[
+            cameraDistance * 0.75,
+            cameraDistance * 0.55,
+            cameraDistance * 0.75,
+          ]}
           fov={48}
           near={0.1}
           far={cameraDistance * 10}
