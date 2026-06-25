@@ -10,47 +10,77 @@ const HEIGHT = 300;
 const PADDING = { top: 24, right: 72, bottom: 42, left: 56 };
 const PLOT_WIDTH = WIDTH - PADDING.left - PADDING.right;
 const PLOT_HEIGHT = HEIGHT - PADDING.top - PADDING.bottom;
-const MAX_CUTOFF = 1.2;
-const MAX_TONNAGE = 1500;
-const MAX_GRADE = 1.5;
 
 export default function EconomicCurve({ results }: EconomicCurveProps) {
   const chartRef = useRef<SVGSVGElement>(null);
   const [hoveredPoint, setHoveredPoint] = useState<EconomicPoint | null>(null);
 
-  const maxNpv = Math.max(results.maxVAN, 1);
+  const maxCutoff = Math.max(results.maximumEvaluatedCutoff, 0.01);
+  const maxTonnage = Math.max(
+    ...results.dataPoints.map((point) => point.tonnage),
+    1,
+  );
+  const maxGrade = Math.max(
+    ...results.dataPoints.map((point) => point.averageGrade),
+    results.inputs.baseGradePercent,
+    0.01,
+  );
+  const maxNpv = Math.max(
+    ...results.dataPoints.map((point) => point.npv),
+    results.maxVAN,
+    1,
+  );
+
   const xScale = (value: number) =>
-    PADDING.left + (value / MAX_CUTOFF) * PLOT_WIDTH;
+    PADDING.left + (value / maxCutoff) * PLOT_WIDTH;
   const tonnageScale = (value: number) =>
-    PADDING.top + PLOT_HEIGHT - (value / MAX_TONNAGE) * PLOT_HEIGHT;
+    PADDING.top + PLOT_HEIGHT - (value / maxTonnage) * PLOT_HEIGHT;
   const gradeScale = (value: number) =>
-    PADDING.top + PLOT_HEIGHT - (value / MAX_GRADE) * PLOT_HEIGHT;
+    PADDING.top + PLOT_HEIGHT - (value / maxGrade) * PLOT_HEIGHT;
   const npvScale = (value: number) =>
     PADDING.top + PLOT_HEIGHT - (value / maxNpv) * PLOT_HEIGHT;
 
+  const xTicks = useMemo(
+    () => Array.from({ length: 7 }, (_, index) => (maxCutoff * index) / 6),
+    [maxCutoff],
+  );
+  const tonnageTicks = useMemo(
+    () => Array.from({ length: 4 }, (_, index) => (maxTonnage * index) / 3),
+    [maxTonnage],
+  );
+
   const paths = useMemo(() => {
+    const localXScale = (value: number) =>
+      PADDING.left + (value / maxCutoff) * PLOT_WIDTH;
+    const localTonnageScale = (value: number) =>
+      PADDING.top + PLOT_HEIGHT - (value / maxTonnage) * PLOT_HEIGHT;
+    const localGradeScale = (value: number) =>
+      PADDING.top + PLOT_HEIGHT - (value / maxGrade) * PLOT_HEIGHT;
+    const localNpvScale = (value: number) =>
+      PADDING.top + PLOT_HEIGHT - (value / maxNpv) * PLOT_HEIGHT;
+
     const makePath = (selector: (point: EconomicPoint) => number) =>
       results.dataPoints
         .map((point, index) => {
-          const x = xScale(point.cutoff);
+          const x = localXScale(point.cutoff);
           const y = selector(point);
           return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
         })
         .join(' ');
 
-    const tonnage = makePath((point) => tonnageScale(point.tonnage));
-    const grade = makePath((point) => gradeScale(point.averageGrade));
-    const npv = makePath((point) => npvScale(point.npv));
-    const last = results.dataPoints.at(-1)?.cutoff ?? MAX_CUTOFF;
+    const tonnage = makePath((point) => localTonnageScale(point.tonnage));
+    const grade = makePath((point) => localGradeScale(point.averageGrade));
+    const npv = makePath((point) => localNpvScale(point.npv));
+    const last = results.dataPoints.at(-1)?.cutoff ?? maxCutoff;
     const first = results.dataPoints[0]?.cutoff ?? 0;
 
     return {
       tonnage,
       grade,
       npv,
-      npvArea: `${npv} L ${xScale(last)} ${PADDING.top + PLOT_HEIGHT} L ${xScale(first)} ${PADDING.top + PLOT_HEIGHT} Z`,
+      npvArea: `${npv} L ${localXScale(last)} ${PADDING.top + PLOT_HEIGHT} L ${localXScale(first)} ${PADDING.top + PLOT_HEIGHT} Z`,
     };
-  }, [results.dataPoints, maxNpv]);
+  }, [results.dataPoints, maxCutoff, maxTonnage, maxGrade, maxNpv]);
 
   const activePoint =
     hoveredPoint ??
@@ -68,7 +98,7 @@ export default function EconomicCurve({ results }: EconomicCurveProps) {
     const rect = node.getBoundingClientRect();
     const chartX = ((event.clientX - rect.left) / rect.width) * WIDTH;
     const cutoff =
-      ((chartX - PADDING.left) / PLOT_WIDTH) * MAX_CUTOFF;
+      ((chartX - PADDING.left) / PLOT_WIDTH) * maxCutoff;
 
     const closest = results.dataPoints.reduce((previous, current) =>
       Math.abs(current.cutoff - cutoff) <
@@ -137,7 +167,7 @@ export default function EconomicCurve({ results }: EconomicCurveProps) {
             />
           ))}
 
-          {[0, 0.2, 0.4, 0.6, 0.8, 1, 1.2].map((value) => (
+          {xTicks.map((value) => (
             <g key={value}>
               <line
                 x1={xScale(value)}
@@ -148,14 +178,14 @@ export default function EconomicCurve({ results }: EconomicCurveProps) {
                 strokeDasharray="3 4"
               />
               <text x={xScale(value)} y={HEIGHT - 16} fill="#9eb5d2" fontSize="10" textAnchor="middle">
-                {value.toFixed(1)}
+                {value.toFixed(2)}
               </text>
             </g>
           ))}
 
-          {[0, 500, 1000, 1500].map((value) => (
+          {tonnageTicks.map((value) => (
             <text key={value} x={PADDING.left - 12} y={tonnageScale(value) + 4} fill="#7dd3fc" fontSize="10" textAnchor="end">
-              {value}
+              {Math.round(value)}
             </text>
           ))}
 
@@ -170,15 +200,17 @@ export default function EconomicCurve({ results }: EconomicCurveProps) {
           <path d={paths.grade} fill="none" stroke="#fde047" strokeWidth="3" />
           <path d={paths.npv} fill="none" stroke="#2dd4bf" strokeWidth="4" filter="url(#curve-glow)" />
 
-          <line
-            x1={xScale(results.breakeven)}
-            x2={xScale(results.breakeven)}
-            y1={PADDING.top}
-            y2={PADDING.top + PLOT_HEIGHT}
-            stroke="#facc15"
-            strokeWidth="2"
-            strokeDasharray="6 4"
-          />
+          {Number.isFinite(results.breakeven) && results.breakeven <= maxCutoff && (
+            <line
+              x1={xScale(results.breakeven)}
+              x2={xScale(results.breakeven)}
+              y1={PADDING.top}
+              y2={PADDING.top + PLOT_HEIGHT}
+              stroke="#facc15"
+              strokeWidth="2"
+              strokeDasharray="6 4"
+            />
+          )}
 
           <line
             x1={xScale(activePoint.cutoff)}

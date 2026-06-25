@@ -33,6 +33,11 @@ function requireText(path, source, token, label = token) {
   else fail(`${path}: falta ${label}`);
 }
 
+function requirePattern(path, source, pattern, label) {
+  if (pattern.test(source)) pass(`${path}: ${label}`);
+  else fail(`${path}: falta ${label}`);
+}
+
 function forbidText(path, source, token, label = token) {
   if (source.includes(token)) fail(`${path}: persiste ${label}`);
   else pass(`${path}: sin ${label}`);
@@ -75,7 +80,13 @@ if (packageJson) {
 const appSource = read('src/App.tsx');
 requireText('src/App.tsx', appSource, "import EconomicCurve from './components/EconomicCurve';", 'EconomicCurve conectado');
 requireText('src/App.tsx', appSource, "import PitWorkspace from './components/PitWorkspace';", 'PitWorkspace conectado');
-requireText('src/App.tsx', appSource, "import { calculateOptimization } from './engine/economicModel';", 'motor económico conectado');
+requireText('src/App.tsx', appSource, "from './engine/economicModel';", 'módulo económico importado');
+requirePattern(
+  'src/App.tsx',
+  appSource,
+  /calculateOptimization\s*\(/,
+  'motor económico conectado',
+);
 requireText('src/App.tsx', appSource, 'parsePhase6Geometry()', 'carga Datamine conectada');
 forbidText('src/App.tsx', appSource, 'PitShell', 'PitShell conceptual');
 forbidText('src/App.tsx', appSource, 'pitMode', 'selector conceptual/Datamine');
