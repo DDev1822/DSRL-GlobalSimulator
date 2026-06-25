@@ -4,9 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "restore:figma": "node scripts/restore-figma-app.mjs",
+    "postinstall": "npm run restore:figma",
+    "predev": "npm run restore:figma",
     "dev": "vite",
+    "prebuild": "npm run restore:figma",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
+    "pretypecheck": "npm run restore:figma",
     "typecheck": "tsc --noEmit --pretty false",
     "validate:data": "node scripts/validate-datamine.mjs"
   },
