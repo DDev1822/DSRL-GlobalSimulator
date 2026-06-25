@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "restore:app": "node scripts/restore-datamine-app.mjs",
+    "restore:app": "node scripts/restore-datamine-app.mjs && node scripts/fix-generated-imports.mjs",
     "postinstall": "npm run restore:app",
     "predev": "npm run restore:app",
     "dev": "vite",
