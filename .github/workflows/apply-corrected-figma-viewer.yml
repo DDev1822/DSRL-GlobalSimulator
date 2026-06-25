@@ -1,0 +1,50 @@
+name: Apply corrected Figma Datamine viewer
+
+on:
+  push:
+    branches:
+      - fix/original-figma-datamine-viewer
+    paths:
+      - 'patches/visor.zip.b64.part*'
+      - '.github/workflows/apply-corrected-figma-viewer.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/original-figma-datamine-viewer
+          fetch-depth: 0
+
+      - name: Rebuild and verify patch
+        shell: bash
+        run: |
+          cat patches/visor.zip.b64.part* | base64 --decode > /tmp/visor.zip
+          echo "81d50bbe1ef6dc98bedfc68a2045e0676f8cbc199bdad491de5e9ab6e934d92a  /tmp/visor.zip" | sha256sum -c -
+          rm -rf /tmp/visor
+          mkdir -p /tmp/visor
+          unzip -q /tmp/visor.zip -d /tmp/visor
+
+          cp /tmp/visor/App.tsx src/App.tsx
+          cp /tmp/visor/components/DataminePhaseViewer.tsx src/components/DataminePhaseViewer.tsx
+          cp /tmp/visor/utils/datamineParser.ts src/utils/datamineParser.ts
+
+          echo "6a5b90663f378822489ade5a64dea811945f034a95b8c19830bb84ee588995b9  src/App.tsx" | sha256sum -c -
+          echo "bde29be4b090c107dfd976df769a54df1b94fa26c063958bbb813547b2786c11  src/components/DataminePhaseViewer.tsx" | sha256sum -c -
+          echo "f2afdae9b87d2d2b3c63dff9f556b29f59fbec9fa1e2f8ac74f899c527666632  src/utils/datamineParser.ts" | sha256sum -c -
+
+      - name: Commit direct source files
+        shell: bash
+        run: |
+          rm -rf patches
+          rm -f .github/workflows/apply-corrected-figma-viewer.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: preserve original Figma layout with corrected Datamine viewer"
+          git push origin HEAD:fix/original-figma-datamine-viewer
