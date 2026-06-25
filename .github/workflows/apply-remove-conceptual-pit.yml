@@ -1,0 +1,25 @@
+name: Apply conceptual pit removal
+
+on:
+  push:
+    branches:
+      - fix/original-figma-datamine-viewer
+    paths:
+      - '.github/remove-conceptual-pit-trigger'
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/original-figma-datamine-viewer
+          fetch-depth: 0
+      - run: node scripts/remove-conceptual-pit.mjs
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'refactor: remove obsolete conceptual pit model'
+          file_pattern: 'src/App.loading-fixed.tsx'
