@@ -14,26 +14,52 @@ import {
   Mountain,
   Radio,
   Settings2,
+  SlidersHorizontal,
   Target,
   Zap,
 } from 'lucide-react';
+import EconomicControlDeck from './components/EconomicControlDeck';
 import EconomicCurve from './components/EconomicCurve';
 import PitWorkspace from './components/PitWorkspace';
-import { calculateOptimization } from './engine/economicModel';
+import {
+  calculateOptimization,
+  createEconomicInputs,
+  DEFAULT_ECONOMIC_INPUTS,
+  validateEconomicInputs,
+  type EconomicInputKey,
+  type EconomicInputs,
+} from './engine/economicModel';
 import {
   parsePhase6Geometry,
   type PhaseGeometryData,
 } from './utils/datamineParser';
 
+const ECONOMIC_STORAGE_KEY = 'dsrl-global-simulator:economic-scenario:v1';
+
+function loadInitialEconomicInputs(): EconomicInputs {
+  if (typeof window === 'undefined') return createEconomicInputs();
+
+  try {
+    const stored = window.localStorage.getItem(ECONOMIC_STORAGE_KEY);
+    if (!stored) return createEconomicInputs();
+    const parsed = JSON.parse(stored) as Partial<EconomicInputs>;
+    const candidate = createEconomicInputs(parsed);
+    return validateEconomicInputs(candidate).valid
+      ? candidate
+      : createEconomicInputs();
+  } catch {
+    return createEconomicInputs();
+  }
+}
+
 export default function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [discountRate, setDiscountRate] = useState(0.08);
-  const [millCapacity, setMillCapacity] = useState(40);
-  const [mineCapacity, setMineCapacity] = useState(100);
-  const [stripRatio, setStripRatio] = useState(1.5);
-  const [mineRecovery, setMineRecovery] = useState(0.95);
-  const [plantRecovery, setPlantRecovery] = useState(0.88);
+  const [controlDeckOpen, setControlDeckOpen] = useState(false);
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const [economicInputs, setEconomicInputs] = useState<EconomicInputs>(
+    loadInitialEconomicInputs,
+  );
   const [geometry, setGeometry] = useState<PhaseGeometryData | null>(null);
   const [loadingGeometry, setLoadingGeometry] = useState(true);
   const [geometryError, setGeometryError] = useState<string | null>(null);
@@ -79,23 +105,8 @@ export default function App() {
   }, [reloadKey]);
 
   const results = useMemo(
-    () =>
-      calculateOptimization({
-        discountRate,
-        millCapacity,
-        mineCapacity,
-        stripRatio,
-        mineRecovery,
-        plantRecovery,
-      }),
-    [
-      discountRate,
-      millCapacity,
-      mineCapacity,
-      stripRatio,
-      mineRecovery,
-      plantRecovery,
-    ],
+    () => calculateOptimization(economicInputs),
+    [economicInputs],
   );
 
   const toggleFullscreen = async () => {
@@ -107,12 +118,41 @@ export default function App() {
     }
   };
 
+  const changeEconomicInput = (
+    field: EconomicInputKey,
+    value: number,
+  ) => {
+    setEconomicInputs((current) => ({ ...current, [field]: value }));
+    setSavedAt(null);
+  };
+
+  const saveScenario = () => {
+    window.localStorage.setItem(
+      ECONOMIC_STORAGE_KEY,
+      JSON.stringify(economicInputs),
+    );
+    setSavedAt(new Date());
+  };
+
+  const resetScenario = () => {
+    setEconomicInputs({ ...DEFAULT_ECONOMIC_INPUTS });
+    window.localStorage.removeItem(ECONOMIC_STORAGE_KEY);
+    setSavedAt(null);
+  };
+
   const economicMetrics = {
     npv: results.maxVAN,
     reserves: results.bestScenario.tonnage,
     grade: results.bestScenario.grade,
-    stripRatio,
+    stripRatio: economicInputs.stripRatio,
   };
+
+  const maxRecoverableResource =
+    economicInputs.maxResourceMt * economicInputs.mineRecovery;
+  const maximumMetalReference =
+    maxRecoverableResource *
+    (Math.max(economicInputs.baseGradePercent, results.bestScenario.grade) / 100) *
+    economicInputs.plantRecovery;
 
   return (
     <div className="app-shell">
@@ -129,6 +169,14 @@ export default function App() {
           <span className="online"><i /> SYSTEM ONLINE</span>
         </div>
         <div className="topbar-actions">
+          <button
+            type="button"
+            className={controlDeckOpen ? 'active' : ''}
+            onClick={() => setControlDeckOpen((value) => !value)}
+            aria-expanded={controlDeckOpen}
+          >
+            <SlidersHorizontal size={13} /> CONTROL DECK
+          </button>
           <button type="button" onClick={toggleFullscreen}>
             {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
             {isFullscreen ? 'SALIR DE PANTALLA COMPLETA' : 'PANTALLA COMPLETA'}
@@ -155,29 +203,44 @@ export default function App() {
           </Panel>
 
           <Panel icon={<Database size={13} />} title="RESOURCES">
-            <ProgressMetric label="ORE TONNAGE" value={`${results.bestScenario.tonnage.toFixed(0)} Mt`} progress={results.bestScenario.tonnage / 1000} tone="cyan" />
-            <ProgressMetric label="HEAD GRADE" value={`${results.bestScenario.grade.toFixed(3)} %`} progress={results.bestScenario.grade / 1.5} tone="yellow" />
-            <ProgressMetric label="METAL CONTENT" value={`${results.bestScenario.metal.toFixed(2)} Mt`} progress={results.bestScenario.metal / 10} tone="green" />
+            <ProgressMetric
+              label="ORE TONNAGE"
+              value={`${results.bestScenario.tonnage.toFixed(0)} Mt`}
+              progress={results.bestScenario.tonnage / Math.max(maxRecoverableResource, 1)}
+              tone="cyan"
+            />
+            <ProgressMetric
+              label="HEAD GRADE"
+              value={`${results.bestScenario.grade.toFixed(3)} %`}
+              progress={results.bestScenario.grade / Math.max(results.maximumEvaluatedCutoff, 0.01)}
+              tone="yellow"
+            />
+            <ProgressMetric
+              label="METAL CONTENT"
+              value={`${results.bestScenario.metal.toFixed(2)} Mt`}
+              progress={results.bestScenario.metal / Math.max(maximumMetalReference, 0.01)}
+              tone="green"
+            />
           </Panel>
 
           <Panel icon={<Gauge size={13} />} title="RECOVERY RATES" grow>
             <Slider
               label="REC. MINADO"
-              value={mineRecovery}
+              value={economicInputs.mineRecovery}
               min={0.85}
               max={1}
               step={0.01}
-              display={`${(mineRecovery * 100).toFixed(0)} %`}
-              onChange={setMineRecovery}
+              display={`${(economicInputs.mineRecovery * 100).toFixed(0)} %`}
+              onChange={(value) => changeEconomicInput('mineRecovery', value)}
             />
             <Slider
               label="REC. METALÚRGICA"
-              value={plantRecovery}
+              value={economicInputs.plantRecovery}
               min={0.75}
               max={0.95}
               step={0.01}
-              display={`${(plantRecovery * 100).toFixed(0)} %`}
-              onChange={setPlantRecovery}
+              display={`${(economicInputs.plantRecovery * 100).toFixed(0)} %`}
+              onChange={(value) => changeEconomicInput('plantRecovery', value)}
             />
           </Panel>
         </aside>
@@ -209,11 +272,36 @@ export default function App() {
         </section>
 
         <aside className="right-rail">
-          <Panel icon={<Settings2 size={13} />} title="CONTROL PARAMETERS" grow>
-            <Slider label="MINE CAP." value={mineCapacity} min={50} max={200} step={10} display={`${mineCapacity} Mt/a`} onChange={setMineCapacity} />
-            <Slider label="PLANT CAP." value={millCapacity} min={10} max={85} step={5} display={`${millCapacity} Mt/a`} onChange={setMillCapacity} />
-            <Slider label="STRIP RATIO" value={stripRatio} min={0.4} max={5.5} step={0.1} display={`${stripRatio.toFixed(1)} : 1`} onChange={setStripRatio} />
-            <Slider label="DISCOUNT RATE" value={discountRate} min={0.05} max={0.15} step={0.005} display={`${(discountRate * 100).toFixed(1)} %`} onChange={setDiscountRate} />
+          <Panel icon={<Settings2 size={13} />} title="ECONOMIC SCENARIO" grow>
+            <Metric
+              label="METAL PRICE"
+              value={`$${economicInputs.metalPriceUsdPerTonne.toLocaleString()} /t`}
+              tone="cyan"
+            />
+            <Metric
+              label="MAX RESOURCE"
+              value={`${economicInputs.maxResourceMt.toFixed(0)} Mt`}
+              tone="blue"
+            />
+            <div className="metric-pair">
+              <Metric
+                label="WACC"
+                value={`${(economicInputs.wacc * 100).toFixed(1)} %`}
+                tone="yellow"
+              />
+              <Metric
+                label="PRODUCTION"
+                value={`${economicInputs.annualProductionMt.toFixed(0)} Mt/a`}
+                tone="green"
+              />
+            </div>
+            <button
+              className="action primary"
+              type="button"
+              onClick={() => setControlDeckOpen(true)}
+            >
+              ABRIR CONTROL DECK
+            </button>
           </Panel>
 
           <Panel icon={<Expand size={13} />} title="COST STRUCTURE & SYSTEM STATUS">
@@ -221,27 +309,43 @@ export default function App() {
               <Metric label="CAPEX" value={`$${results.dynamicCAPEX.toFixed(0)}M`} tone="purple" />
               <Metric label="MINE OPEX" value={`$${results.miningOpex.toFixed(2)}/t`} tone="cyan" />
               <Metric label="PLANT OPEX" value={`$${results.processingOpex.toFixed(2)}/t`} tone="yellow" />
-              <Metric label="PRODUCTION" value={`${results.effectiveProductionRate.toFixed(1)} Mt/a`} tone="green" />
+              <Metric label="TOTAL OPEX" value={`$${results.totalOpexPerTon.toFixed(2)}/t`} tone="green" />
             </div>
-            <div className="constraint"><CheckCircle2 size={13} /> {results.effectiveProductionRate >= millCapacity * 0.95 ? 'MILL CONSTRAINT' : 'MINE CONSTRAINT'}</div>
+            <div className="constraint">
+              <CheckCircle2 size={13} /> PARAMETRIC ENGINE · {results.validation.warnings.length} WARNINGS
+            </div>
           </Panel>
 
           <Panel icon={<Zap size={13} />} title="QUICK ACTIONS">
             <button className="action primary" type="button">EXPORT REPORT</button>
-            <button className="action" type="button">SAVE SCENARIO</button>
-            <button className="action" type="button">RESET DEFAULT</button>
+            <button className="action" type="button" onClick={saveScenario}>SAVE SCENARIO</button>
+            <button className="action" type="button" onClick={resetScenario}>RESET DEFAULT</button>
           </Panel>
 
           <Panel icon={<Activity size={13} />} title="SYSTEM STATUS">
             <div className="system-lines">
-              <span>Engine:<b>Lane v2.1</b></span>
+              <span>Engine:<b>Lane Parametric v3</b></span>
               <span>Geometry:<b>DATAMINE</b></span>
               <span>Triangles:<b>{geometry?.validation.stats.totalTriangles.toLocaleString() ?? '—'}</b></span>
-              <span>Precision:<b>0.01%</b></span>
+              <span>Precision:<b>{economicInputs.cutoffStepPercent.toFixed(2)}%</b></span>
             </div>
           </Panel>
         </aside>
       </main>
+
+      <EconomicControlDeck
+        open={controlDeckOpen}
+        inputs={economicInputs}
+        validation={results.validation}
+        breakeven={results.breakeven}
+        optimalCutoff={results.optimalCutoff}
+        maxVAN={results.maxVAN}
+        savedAt={savedAt}
+        onClose={() => setControlDeckOpen(false)}
+        onChange={changeEconomicInput}
+        onSave={saveScenario}
+        onReset={resetScenario}
+      />
     </div>
   );
 }
@@ -340,9 +444,10 @@ const APP_STYLES = `
   .divider { width:1px;height:26px;background:#86a4c7;opacity:.55; }
   .online { gap:6px;color:#35eee0;font-size:8px;font-weight:800; }
   .online i { width:7px;height:7px;border-radius:50%;background:#35eee0;box-shadow:0 0 9px #35eee0; }
-  .topbar-actions { gap:14px;font-size:8px;color:#c3d4e8; }
+  .topbar-actions { gap:10px;font-size:8px;color:#c3d4e8; }
   .topbar-actions span { gap:5px; }
-  .topbar-actions button { gap:6px;padding:7px 12px;background:#29486f;border:1px solid #6f91b8;color:#62f4e8;border-radius:3px;font-size:8px;font-weight:800;cursor:pointer; }
+  .topbar-actions button { gap:6px;padding:7px 10px;background:#29486f;border:1px solid #6f91b8;color:#62f4e8;border-radius:3px;font-size:8px;font-weight:800;cursor:pointer; }
+  .topbar-actions button.active { background:#2de5d8;color:#06243a;border-color:#2de5d8; }
   .dashboard-grid { height:calc(100vh - 49px); display:grid; grid-template-columns:180px minmax(0,1fr) 205px; gap:7px; padding:7px; overflow:hidden; }
   .left-rail,.right-rail { display:flex;flex-direction:column;gap:7px;min-height:0; }
   .center-stage { display:grid;grid-template-rows:minmax(250px,42%) minmax(330px,58%);gap:7px;min-width:0;min-height:0; }
@@ -405,11 +510,44 @@ const APP_STYLES = `
   .action { width:100%;margin-bottom:5px; }
   .system-lines { display:flex;flex-direction:column;gap:4px;font-size:7px;color:#b6c8dc; }
   .system-lines span { display:flex;justify-content:space-between; }.system-lines b{color:#46ede0;font-family:Consolas,monospace;}
+  .economic-control-drawer { position:fixed;left:194px;right:219px;bottom:8px;z-index:100;overflow:hidden;border:1px solid #4ff3e7;border-radius:7px;background:linear-gradient(180deg,#23486e 0,#132d4a 100%);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 22px rgba(45,229,216,.14); }
+  .economic-control-header { min-height:44px;display:grid;grid-template-columns:minmax(240px,1fr) auto auto;gap:12px;align-items:center;padding:7px 9px;border-bottom:1px solid #6d8cab;background:#294d74; }
+  .economic-control-title { display:flex;align-items:center;gap:8px;color:#50f1e5; }
+  .economic-control-title>div { display:flex;flex-direction:column;gap:2px; }
+  .economic-control-title strong { font-size:9px;letter-spacing:.3px; }
+  .economic-control-title span { color:#b9cce1;font-size:6px; }
+  .economic-control-summary { display:flex;gap:5px; }
+  .economic-control-summary span { padding:5px 7px;border:1px solid #5f7fa3;border-radius:3px;background:#173552;color:#a9bdd5;font-size:6px;font-weight:800; }
+  .economic-control-summary b { margin-left:4px;color:#43f2e5;font-family:Consolas,monospace; }
+  .economic-control-actions { display:flex;gap:5px; }
+  .economic-control-actions button { display:flex;align-items:center;gap:4px;padding:6px 8px;border:1px solid #6e8fb2;border-radius:3px;background:#1d3d61;color:#eaf5ff;font-size:6px;font-weight:900;cursor:pointer; }
+  .economic-control-actions button:hover { border-color:#43eee0;color:#43eee0; }
+  .economic-control-actions .drawer-close { width:29px;justify-content:center;padding:0; }
+  .economic-control-grid { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px; }
+  .economic-control-field { display:block;padding:7px;border:1px solid #55779b;border-radius:4px;background:#16324f;min-width:0; }
+  .economic-field-heading { display:flex;justify-content:space-between;align-items:center;gap:5px;margin-bottom:5px; }
+  .economic-field-heading b { color:#dcecff;font-size:7px; }
+  .economic-field-heading small { color:#7fa2c4;font-size:6px;white-space:nowrap; }
+  .economic-field-input-row { display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px;align-items:center;margin-bottom:4px; }
+  .economic-field-input-row input { width:100%;padding:4px 5px;border:1px solid #6586aa;border-radius:3px;background:#0e2843;color:#45eee2;font-family:Consolas,monospace;font-size:10px;font-weight:800; }
+  .economic-field-input-row strong { color:#9eb9d5;font-size:6px;white-space:nowrap; }
+  .economic-control-field input[type=range] { display:block;width:100%;height:10px; }
+  .economic-field-message { display:block;margin-top:3px;font-size:6px;line-height:1.2; }
+  .economic-field-message.warning { color:#ffd56a; }.economic-field-message.error { color:#ff8d9e; }
+  .economic-control-footer { display:flex;justify-content:space-between;gap:10px;padding:5px 9px;border-top:1px solid #4e7095;background:#112a46;color:#8fabca;font-size:6px; }
   @media (max-width:1200px), (max-height:720px) {
     html,body,#root { overflow:auto; }
     .app-shell { height:auto;min-height:100vh;overflow:visible; }
     .dashboard-grid { height:auto;grid-template-columns:1fr;overflow:visible; }
     .left-rail,.right-rail { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); }
     .center-stage { grid-template-rows:420px 560px; }
+    .economic-control-drawer { left:8px;right:8px;max-height:78vh;overflow:auto; }
+    .economic-control-header { grid-template-columns:1fr; }
+    .economic-control-summary,.economic-control-actions { flex-wrap:wrap; }
+    .economic-control-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  }
+  @media (max-width:700px) {
+    .economic-control-grid { grid-template-columns:1fr; }
+    .economic-control-footer { flex-direction:column; }
   }
 `;
