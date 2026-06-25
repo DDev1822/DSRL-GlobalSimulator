@@ -37,6 +37,15 @@ export interface EconomicInputs {
   maxCutoffMultiplier: number;
 }
 
+export interface LegacyEconomicInputs {
+  discountRate: number;
+  millCapacity: number;
+  mineCapacity: number;
+  stripRatio: number;
+  mineRecovery: number;
+  plantRecovery: number;
+}
+
 export type EconomicInputKey = keyof EconomicInputs;
 export type ValidationSeverity = 'error' | 'warning';
 
@@ -111,7 +120,7 @@ export class EconomicModelError extends Error {
 
   constructor(validation: EconomicValidationResult) {
     super(
-      validation.errors.map((issue) => issue.message).join(' ') ||
+      validation.errors.map((item) => item.message).join(' ') ||
         'Los parámetros económicos no son válidos.',
     );
     this.name = 'EconomicModelError';
@@ -123,6 +132,48 @@ export function createEconomicInputs(
   overrides: Partial<EconomicInputs> = {},
 ): EconomicInputs {
   return { ...DEFAULT_ECONOMIC_INPUTS, ...overrides };
+}
+
+function isLegacyEconomicInputs(
+  inputs: EconomicInputs | LegacyEconomicInputs,
+): inputs is LegacyEconomicInputs {
+  return 'discountRate' in inputs && 'millCapacity' in inputs;
+}
+
+export function normalizeEconomicInputs(
+  providedInputs: EconomicInputs | LegacyEconomicInputs,
+): EconomicInputs {
+  if (!isLegacyEconomicInputs(providedInputs)) {
+    return { ...providedInputs };
+  }
+
+  const effectiveProduction = Math.max(
+    Math.min(
+      providedInputs.millCapacity,
+      providedInputs.mineCapacity / (1 + providedInputs.stripRatio),
+    ),
+    0.01,
+  );
+  const sizeFactor =
+    (providedInputs.millCapacity / 40 + providedInputs.mineCapacity / 100) /
+    2;
+
+  return createEconomicInputs({
+    wacc: providedInputs.discountRate,
+    annualProductionMt: effectiveProduction,
+    stripRatio: providedInputs.stripRatio,
+    mineRecovery: providedInputs.mineRecovery,
+    plantRecovery: providedInputs.plantRecovery,
+    initialCapexUsdM:
+      DEFAULT_ECONOMIC_INPUTS.initialCapexUsdM *
+      Math.pow(Math.max(sizeFactor, 0.01), 0.65),
+    miningCostUsdPerTonneMoved:
+      DEFAULT_ECONOMIC_INPUTS.miningCostUsdPerTonneMoved *
+      Math.pow(100 / Math.max(providedInputs.mineCapacity, 0.01), 0.15),
+    processingCostUsdPerTonneOre:
+      DEFAULT_ECONOMIC_INPUTS.processingCostUsdPerTonneOre *
+      Math.pow(40 / Math.max(providedInputs.millCapacity, 0.01), 0.25),
+  });
 }
 
 function issue(
@@ -423,9 +474,9 @@ function evaluateCutoff(
 }
 
 export function calculateOptimization(
-  providedInputs: EconomicInputs,
+  providedInputs: EconomicInputs | LegacyEconomicInputs,
 ): OptimizationResults {
-  const inputs = { ...providedInputs };
+  const inputs = normalizeEconomicInputs(providedInputs);
   const validation = validateEconomicInputs(inputs);
   if (!validation.valid) throw new EconomicModelError(validation);
 
