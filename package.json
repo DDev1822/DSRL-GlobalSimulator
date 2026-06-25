@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit --pretty false",
-    "validate:data": "node scripts/validate-datamine.mjs"
+    "validate:data": "node scripts/validate-datamine.mjs",
+    "remove:conceptual": "node scripts/remove-conceptual-pit.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.3",
