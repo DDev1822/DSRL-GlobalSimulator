@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.vite/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+*.log
+coverage/
+
+# Local-only source files and large temporary exports
+*.zip
+*.bak
+*.tmp
+
+# Keep validated Datamine CSVs under public/data when intentionally committed
