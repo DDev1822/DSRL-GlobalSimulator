@@ -4,12 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "restore:app": "node scripts/restore-datamine-app.mjs",
+    "postinstall": "npm run restore:app",
+    "predev": "npm run restore:app",
     "dev": "vite",
+    "prebuild": "npm run restore:app",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
+    "pretypecheck": "npm run restore:app",
     "typecheck": "tsc --noEmit --pretty false",
-    "validate:data": "node scripts/validate-datamine.mjs",
-    "remove:conceptual": "node scripts/remove-conceptual-pit.mjs"
+    "validate:data": "node scripts/validate-datamine.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.3",
