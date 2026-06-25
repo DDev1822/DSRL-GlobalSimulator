@@ -42,18 +42,21 @@ interface PhaseGeometryData {
   bounds: GeometryBounds;
 }
 
-interface HoveredGeometry {
+export interface HoveredGeometry {
   group: 'Topografía' | 'Pit';
   position: { x: number; y: number; z: number };
 }
 
+type ViewerColorMode = 'group' | 'component' | 'elevation';
+
 interface DataminePhaseViewerProps {
-  geometry: PhaseGeometryData | null;
+  geometry?: PhaseGeometryData | null;
+  geometryData?: PhaseGeometryData | null;
   showTopography: boolean;
   showPit: boolean;
   showStrings: boolean;
   showWireframe: boolean;
-  colorMode: 'group' | 'elevation';
+  colorMode: ViewerColorMode;
   onTriangleHover?: (data: HoveredGeometry | null) => void;
   onStringHover?: (data: { stringId: number } | null) => void;
 }
@@ -71,7 +74,7 @@ function buildMeshGeometry(
   points: Point3D[],
   bounds: GeometryBounds,
   baseColor: string,
-  colorMode: 'group' | 'elevation',
+  colorMode: ViewerColorMode,
 ): THREE.BufferGeometry {
   const geometry = new THREE.BufferGeometry();
   const pointMap = new Map(points.map((point) => [point.pid, point]));
@@ -135,7 +138,7 @@ function TriangleMesh({
   bounds: GeometryBounds;
   baseColor: string;
   wireframe: boolean;
-  colorMode: 'group' | 'elevation';
+  colorMode: ViewerColorMode;
   onHover?: (data: HoveredGeometry | null) => void;
 }) {
   const [hovered, setHovered] = useState(false);
@@ -269,6 +272,7 @@ function StringLines({
 
 export default function DataminePhaseViewer({
   geometry,
+  geometryData,
   showTopography,
   showPit,
   showStrings,
@@ -277,7 +281,9 @@ export default function DataminePhaseViewer({
   onTriangleHover,
   onStringHover,
 }: DataminePhaseViewerProps) {
-  if (!geometry) {
+  const resolvedGeometry = geometryData ?? geometry ?? null;
+
+  if (!resolvedGeometry) {
     return (
       <div className="flex h-full w-full items-center justify-center rounded bg-slate-950/70 text-xs text-slate-500">
         Sin geometría cargada
@@ -285,7 +291,7 @@ export default function DataminePhaseViewer({
     );
   }
 
-  const { bounds } = geometry;
+  const { bounds } = resolvedGeometry;
   const rangeX = bounds.maxX - bounds.minX;
   const rangeY = bounds.maxY - bounds.minY;
   const rangeZ = bounds.maxZ - bounds.minZ;
@@ -320,11 +326,11 @@ export default function DataminePhaseViewer({
         <directionalLight position={[10, 14, 8]} intensity={1.2} />
         <directionalLight position={[-8, 5, -10]} intensity={0.35} />
 
-        {showTopography && geometry.triangles.topography.length > 0 && (
+        {showTopography && resolvedGeometry.triangles.topography.length > 0 && (
           <TriangleMesh
             group="Topografía"
-            triangles={geometry.triangles.topography}
-            points={geometry.points}
+            triangles={resolvedGeometry.triangles.topography}
+            points={resolvedGeometry.points}
             bounds={bounds}
             baseColor="#6b7280"
             wireframe={showWireframe}
@@ -333,11 +339,11 @@ export default function DataminePhaseViewer({
           />
         )}
 
-        {showPit && geometry.triangles.pit.length > 0 && (
+        {showPit && resolvedGeometry.triangles.pit.length > 0 && (
           <TriangleMesh
             group="Pit"
-            triangles={geometry.triangles.pit}
-            points={geometry.points}
+            triangles={resolvedGeometry.triangles.pit}
+            points={resolvedGeometry.points}
             bounds={bounds}
             baseColor="#f59e0b"
             wireframe={showWireframe}
@@ -347,7 +353,7 @@ export default function DataminePhaseViewer({
         )}
 
         <StringLines
-          strings={geometry.cutStrings}
+          strings={resolvedGeometry.cutStrings}
           bounds={bounds}
           visible={showStrings}
           onHover={onStringHover}
