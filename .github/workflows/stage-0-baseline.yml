@@ -1,0 +1,21 @@
+name: Stage 0 Baseline Verification
+
+on:
+  push:
+    branches:
+      - chore/stage-0-baseline-audit
+  pull_request:
+    branches:
+      - fix/original-figma-datamine-viewer
+
+jobs:
+  verify-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run verify:baseline
