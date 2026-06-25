@@ -1,13 +1,13 @@
 // Datamine Phase 6 Geometry Parser
 
-interface Point3D {
+export interface Point3D {
   pid: number;
   x: number;
   y: number;
   z: number;
 }
 
-interface Triangle {
+export interface Triangle {
   id: number;
   pid1: number;
   pid2: number;
@@ -16,12 +16,12 @@ interface Triangle {
   pitName?: string;
 }
 
-interface CutString {
+export interface CutString {
   id: number;
   points: Point3D[];
 }
 
-interface PhaseGeometryData {
+export interface PhaseGeometryData {
   points: Point3D[];
   triangles: {
     topography: Triangle[];
@@ -247,28 +247,16 @@ export async function parsePhase6Geometry(): Promise<PhaseGeometryData> {
     'La fuente actual no incluye strings independientes.',
   ];
 
-  if (invalidPointRows > 0) {
-    messages.push(`${invalidPointRows} filas de puntos fueron descartadas.`);
-  }
-
-  if (invalidTriangleRows > 0) {
-    messages.push(`${invalidTriangleRows} filas de triángulos fueron descartadas.`);
-  }
-
-  if (duplicatePIDs > 0) {
-    messages.push(`${duplicatePIDs} PID duplicados fueron reemplazados.`);
-  }
+  if (invalidPointRows > 0) messages.push(`${invalidPointRows} filas de puntos fueron descartadas.`);
+  if (invalidTriangleRows > 0) messages.push(`${invalidTriangleRows} filas de triángulos fueron descartadas.`);
+  if (duplicatePIDs > 0) messages.push(`${duplicatePIDs} PID duplicados fueron reemplazados.`);
 
   if (points.length !== EXPECTED_POINT_COUNT) {
-    messages.push(
-      `Advertencia: se esperaban ${EXPECTED_POINT_COUNT.toLocaleString('en-US')} puntos.`,
-    );
+    messages.push(`Advertencia: se esperaban ${EXPECTED_POINT_COUNT.toLocaleString('en-US')} puntos.`);
   }
 
   if (validTriangles.length !== EXPECTED_TRIANGLE_COUNT) {
-    messages.push(
-      `Advertencia: se esperaban ${EXPECTED_TRIANGLE_COUNT.toLocaleString('en-US')} triángulos.`,
-    );
+    messages.push(`Advertencia: se esperaban ${EXPECTED_TRIANGLE_COUNT.toLocaleString('en-US')} triángulos.`);
   }
 
   const hasWarnings =
@@ -281,10 +269,7 @@ export async function parsePhase6Geometry(): Promise<PhaseGeometryData> {
 
   return {
     points,
-    triangles: {
-      topography: [],
-      pit: validTriangles,
-    },
+    triangles: { topography: [], pit: validTriangles },
     cutStrings: [],
     validation: {
       status: hasWarnings ? 'warning' : 'valid',
