@@ -37,6 +37,7 @@ const manifestSource = read('public/data/datamine/geometry-manifest.json');
 const parser = read('src/utils/datamineParser.ts');
 const validator = read('scripts/validate-datamine.mjs');
 const workspace = read('src/components/PitWorkspace.tsx');
+const viewer = read('src/components/DataminePhaseViewer.tsx');
 
 if (manifestSource) {
   const manifest = JSON.parse(manifestSource);
@@ -46,19 +47,34 @@ if (manifestSource) {
   if (Array.isArray(manifest.phases)) pass('Manifiesto con arreglo de fases');
   else fail('El manifiesto no declara phases');
 
-  const phase6 = manifest.phases?.find((entry) => entry.phase === 6);
-  if (phase6?.pointsFile && phase6?.trianglesFile) {
-    pass('F6 declarado como par independiente _pt/_tr');
+  const declaredPhases = (manifest.phases ?? [])
+    .filter((entry) => entry.enabled !== false)
+    .map((entry) => entry.phase)
+    .sort((left, right) => left - right);
+  const expectedPhases = [1, 2, 3, 4, 5, 6];
+  if (JSON.stringify(declaredPhases) === JSON.stringify(expectedPhases)) {
+    pass('Fases reales F1-F6 declaradas');
   } else {
-    fail('F6 no está declarado con pointsFile y trianglesFile');
+    fail(`Se esperaban F1-F6 y se declararon: ${declaredPhases.join(', ') || 'ninguna'}`);
   }
 
-  if (manifest.topography === null) {
-    pass('Topografía ausente declarada explícitamente');
-  } else if (manifest.topography?.pointsFile && manifest.topography?.trianglesFile) {
-    pass('Topografía declarada como par independiente _pt/_tr');
+  for (const phase of expectedPhases) {
+    const entry = manifest.phases?.find((item) => item.phase === phase);
+    if (entry?.pointsFile && entry?.trianglesFile) {
+      pass(`F${phase} declarado como par independiente _pt/_tr`);
+    } else {
+      fail(`F${phase} no está declarado con pointsFile y trianglesFile`);
+    }
+  }
+
+  if (
+    manifest.topography?.type === 'topography' &&
+    manifest.topography?.pointsFile &&
+    manifest.topography?.trianglesFile
+  ) {
+    pass('Topografía real declarada como par independiente _pt/_tr');
   } else {
-    fail('La topografía debe ser null o declarar su par _pt/_tr');
+    fail('La topografía real no está declarada correctamente');
   }
 }
 
@@ -85,10 +101,22 @@ requireToken(validator, 'availablePhases', 'Reporte de fases disponibles');
 requireToken(validator, 'topographyAvailable', 'Reporte de topografía');
 requireToken(validator, 'invalidPidTriangles', 'Control de conectividad PID');
 
+requireToken(workspace, 'parseDatamineGeometryCatalog', 'Workspace conectado al catálogo real');
+requireToken(workspace, 'catalog?.phases[phaseStep]', 'Selección de pit real por fase');
+requireToken(workspace, 'catalog?.topography', 'Topografía real conectada');
+requireToken(workspace, 'showTopography', 'Control de visibilidad de topografía');
+requireToken(workspace, 'availablePhases.includes(phase)', 'Botones ligados a fases disponibles');
 requireToken(workspace, 'dataSource.geometryName', 'Nombre de superficie visible');
 requireToken(workspace, 'dataSource.geometryId', 'ID de superficie visible');
 requireToken(workspace, 'dataSource.phase', 'Fase real visible');
 requireToken(workspace, 'archivos _pt y _tr se conservan separados', 'Mensaje de arquitectura separada');
+forbidToken(workspace, 'evolución visual provisional', 'mensaje de evolución provisional');
+
+requireToken(viewer, 'topographyData', 'Viewer recibe topografía separada');
+requireToken(viewer, 'mergeBounds', 'Alineamiento espacial pit-topografía');
+requireToken(viewer, 'opacity={0.28}', 'Topografía semitransparente');
+requireToken(viewer, 'triangles={geometryData.triangles.pit}', 'Pit real completo renderizado');
+forbidToken(viewer, 'visibleTrianglesForPhase', 'recorte porcentual del pit final');
 
 console.log('\nSTAGE 3 AUDIT SUMMARY');
 console.log(
