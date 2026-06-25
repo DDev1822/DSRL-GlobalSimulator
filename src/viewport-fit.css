@@ -1,0 +1,87 @@
+/* Desktop viewport-fit layer.
+   Keeps the complete dashboard inside one screen without changing panel order. */
+@media (min-width: 901px) and (min-height: 760px) {
+  html,
+  body,
+  #root {
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #root > .dashboard-shell {
+    height: 100vh !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #root .status-bar {
+    position: relative !important;
+    flex: 0 0 58px !important;
+  }
+
+  #root .dashboard-main {
+    flex: 1 1 auto !important;
+    height: calc(100vh - 58px) !important;
+    min-height: 0 !important;
+    padding: 8px !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+    align-items: stretch !important;
+  }
+
+  #root .main-content {
+    display: grid !important;
+    grid-template-rows: minmax(0, 1.06fr) minmax(0, 1fr) 112px !important;
+    gap: 8px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #root .dashboard-main .panel {
+    padding: 8px !important;
+    min-height: 0 !important;
+  }
+
+  #root .dashboard-main .panel-header {
+    margin-bottom: 6px !important;
+    padding-bottom: 5px !important;
+  }
+
+  #root .main-content > .panel:nth-child(1),
+  #root .main-content > .panel:nth-child(2) {
+    min-height: 0 !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  #root .main-content > .panel:nth-child(1) .panel-content,
+  #root .main-content > .panel:nth-child(2) .panel-content {
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #root .bottom-metrics-row {
+    height: 112px !important;
+    min-height: 0 !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+  }
+
+  #root .bottom-metrics-row > .panel {
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  #root .right-rail {
+    height: 100% !important;
+    min-height: 0 !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+  }
+
+  #root .right-rail .panel-content {
+    min-height: 0 !important;
+  }
+}
