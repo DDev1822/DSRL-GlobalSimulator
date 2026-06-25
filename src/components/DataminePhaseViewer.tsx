@@ -1,16 +1,48 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Canvas, type ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
-import type {
-  CutString,
-  GeometryBounds,
-  PhaseGeometryData,
-  Point3D,
-  Triangle,
-} from '../types/datamine';
 
-export interface HoveredGeometry {
+interface Point3D {
+  pid: number;
+  x: number;
+  y: number;
+  z: number;
+}
+
+interface Triangle {
+  id: number;
+  pid1: number;
+  pid2: number;
+  pid3: number;
+}
+
+interface CutString {
+  id: number;
+  points: Point3D[];
+}
+
+interface GeometryBounds {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+  minZ: number;
+  maxZ: number;
+}
+
+interface PhaseGeometryData {
+  points: Point3D[];
+  triangles: {
+    topography: Triangle[];
+    pit: Triangle[];
+  };
+  cutStrings: CutString[];
+  validation: unknown;
+  bounds: GeometryBounds;
+}
+
+interface HoveredGeometry {
   group: 'Topografía' | 'Pit';
   position: { x: number; y: number; z: number };
 }
@@ -83,6 +115,7 @@ function buildMeshGeometry(
   geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
+
   return geometry;
 }
 
@@ -106,7 +139,7 @@ function TriangleMesh({
   onHover?: (data: HoveredGeometry | null) => void;
 }) {
   const [hovered, setHovered] = useState(false);
-  const materialRef = useRef<THREE.MeshStandardMaterial>(null);
+  const center = useMemo(() => getCenter(bounds), [bounds]);
   const meshGeometry = useMemo(
     () => buildMeshGeometry(triangles, points, bounds, baseColor, colorMode),
     [triangles, points, bounds, baseColor, colorMode],
@@ -117,12 +150,13 @@ function TriangleMesh({
   const handlePointerMove = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation();
     setHovered(true);
+
     onHover?.({
       group,
       position: {
-        x: event.point.x,
-        y: event.point.y,
-        z: event.point.z,
+        x: event.point.x + center.x,
+        y: -event.point.z + center.y,
+        z: event.point.y + center.z,
       },
     });
   };
@@ -138,12 +172,11 @@ function TriangleMesh({
       }}
     >
       <meshStandardMaterial
-        ref={materialRef}
         vertexColors={colorMode === 'elevation'}
         color={colorMode === 'elevation' ? undefined : baseColor}
         wireframe={wireframe}
         side={THREE.DoubleSide}
-        opacity={hovered ? 0.95 : 0.78}
+        opacity={hovered ? 0.96 : 0.8}
         transparent
         roughness={0.72}
         metalness={0.08}
@@ -261,7 +294,7 @@ export default function DataminePhaseViewer({
 
   return (
     <div className="h-full w-full overflow-hidden rounded bg-slate-950/70">
-      <Canvas>
+      <Canvas dpr={[1, 2]}>
         <PerspectiveCamera
           makeDefault
           position={[
@@ -273,6 +306,7 @@ export default function DataminePhaseViewer({
           near={0.1}
           far={cameraDistance * 10}
         />
+
         <OrbitControls
           makeDefault
           enableDamping
