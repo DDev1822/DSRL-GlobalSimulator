@@ -82,16 +82,25 @@ export default function PitWorkspace({
     setPhaseStep(Math.min(6, Math.max(1, next)));
   };
 
+  const realPhase = geometry?.dataSource.phase;
+  const geometryName = geometry?.dataSource.geometryName ?? '—';
+  const geometryId = geometry?.dataSource.geometryId ?? '—';
+
   return (
     <div className="pit-workspace">
       <aside className="pit-sidecard">
         <div className="sidecard-eyebrow">GEOMETRÍA REAL</div>
         <div className="sidecard-title">VISOR DATAMINE</div>
         <p className="sidecard-copy">
-          La secuencia F1–F6 es una evolución visual sobre el pit final disponible; no representa seis superficies Datamine independientes.
+          Fuente activa: {geometryName}. Los archivos _pt y _tr se conservan separados por superficie y se cargan mediante el manifiesto geométrico.
+        </p>
+        <p className="sidecard-copy">
+          Mientras solo esté disponible {realPhase ? `F${realPhase}` : 'el pit final'}, la secuencia F1–F6 seguirá siendo una evolución visual provisional.
         </p>
 
         <div className="pit-stats">
+          <div><span>Superficie</span><strong>{geometryId}</strong></div>
+          <div><span>Fase real</span><strong>{realPhase ? `F${realPhase}` : '—'}</strong></div>
           <div><span>Puntos</span><strong>{geometry?.validation.stats.totalPoints.toLocaleString() ?? '—'}</strong></div>
           <div><span>Triángulos</span><strong>{geometry?.validation.stats.totalTriangles.toLocaleString() ?? '—'}</strong></div>
           <div><span>PID inválidos</span><strong>{geometry?.validation.stats.invalidPIDs ?? '—'}</strong></div>
@@ -145,7 +154,7 @@ export default function PitWorkspace({
 
       <section className="pit-view-column">
         <div className="pit-viewer-shell">
-          {loading && <div className="viewer-state">Cargando geometría Datamine…</div>}
+          {loading && <div className="viewer-state">Cargando catálogo Datamine…</div>}
           {!loading && error && (
             <div className="viewer-state error-state">
               <AlertTriangle size={30} />
