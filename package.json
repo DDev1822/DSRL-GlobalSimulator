@@ -9,8 +9,11 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit --pretty false",
     "validate:data": "node scripts/validate-datamine.mjs",
+    "validate:economics": "node scripts/validate-economic-engine.mjs",
     "audit:baseline": "node scripts/audit-baseline.mjs",
-    "verify:baseline": "npm run validate:data && npm run audit:baseline && npm run typecheck && npm run build"
+    "audit:stage1": "node scripts/audit-stage-1.mjs",
+    "verify:baseline": "npm run validate:data && npm run audit:baseline && npm run typecheck && npm run build",
+    "verify:stage1": "npm run validate:data && npm run audit:baseline && npm run audit:stage1 && npm run validate:economics && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.3",
