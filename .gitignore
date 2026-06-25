@@ -14,4 +14,7 @@ coverage/
 *.bak
 *.tmp
 
+# Generated from the preserved Figma baseline before dev/build/typecheck
+src/generated/App.generated.tsx
+
 # Keep validated Datamine CSVs under public/data when intentionally committed
