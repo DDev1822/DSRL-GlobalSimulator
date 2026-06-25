@@ -45,6 +45,11 @@ interface PhaseGeometryData {
 export interface HoveredGeometry {
   group: 'Topografía' | 'Pit';
   position: { x: number; y: number; z: number };
+  triangleId: number;
+  component: 'Topografía' | 'Pit';
+  easting: number;
+  northing: number;
+  elevation: number;
 }
 
 type ViewerColorMode = 'group' | 'component' | 'elevation';
@@ -154,13 +159,27 @@ function TriangleMesh({
     event.stopPropagation();
     setHovered(true);
 
+    const position = {
+      x: event.point.x + center.x,
+      y: -event.point.z + center.y,
+      z: event.point.y + center.z,
+    };
+
+    const faceIndex = Number.isInteger(event.faceIndex) ? event.faceIndex : 0;
+    const safeFaceIndex = Math.min(
+      Math.max(faceIndex ?? 0, 0),
+      Math.max(triangles.length - 1, 0),
+    );
+    const triangle = triangles[safeFaceIndex];
+
     onHover?.({
       group,
-      position: {
-        x: event.point.x + center.x,
-        y: -event.point.z + center.y,
-        z: event.point.y + center.z,
-      },
+      position,
+      triangleId: triangle?.id ?? safeFaceIndex + 1,
+      component: group,
+      easting: position.x,
+      northing: position.y,
+      elevation: position.z,
     });
   };
 
