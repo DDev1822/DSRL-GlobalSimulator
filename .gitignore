@@ -9,6 +9,9 @@ Thumbs.db
 *.log
 coverage/
 
+# Generated application source is restored deterministically before dev/build/typecheck.
+src/generated/
+
 # Local-only source files and large temporary exports
 *.zip
 *.bak
