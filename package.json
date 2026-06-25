@@ -13,9 +13,11 @@
     "audit:baseline": "node scripts/audit-baseline.mjs",
     "audit:stage1": "node scripts/audit-stage-1.mjs",
     "audit:stage2": "node scripts/audit-stage-2.mjs",
+    "audit:stage3": "node scripts/audit-stage-3.mjs",
     "verify:baseline": "npm run validate:data && npm run audit:baseline && npm run typecheck && npm run build",
     "verify:stage1": "npm run validate:data && npm run audit:baseline && npm run audit:stage1 && npm run validate:economics && npm run typecheck && npm run build",
-    "verify:stage2": "npm run validate:data && npm run audit:baseline && npm run audit:stage1 && npm run audit:stage2 && npm run validate:economics && npm run typecheck && npm run build"
+    "verify:stage2": "npm run validate:data && npm run audit:baseline && npm run audit:stage1 && npm run audit:stage2 && npm run validate:economics && npm run typecheck && npm run build",
+    "verify:stage3": "npm run validate:data && npm run audit:baseline && npm run audit:stage1 && npm run audit:stage2 && npm run audit:stage3 && npm run validate:economics && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.3",
