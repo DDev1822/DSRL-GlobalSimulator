@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "coordinateSystem": "UNKNOWN_PROJECT_CRS",
+  "units": "metres",
+  "topography": null,
+  "phases": [
+    {
+      "id": "PIT_F6",
+      "name": "Pit F6",
+      "phase": 6,
+      "type": "pit",
+      "pointsFile": "/data/Design Pit_pt.csv",
+      "trianglesFile": "/data/Design Pit_tr.csv",
+      "expectedPoints": 7995,
+      "expectedTriangles": 15683,
+      "enabled": true
+    }
+  ]
+}
