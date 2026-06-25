@@ -1,1 +1,1 @@
-export { default } from './App.loading-fixed';
+export { default } from './generated/App.datamine-only.generated';
