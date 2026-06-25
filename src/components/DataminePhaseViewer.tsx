@@ -38,6 +38,7 @@ export interface ViewerEconomicMetrics {
 
 interface DataminePhaseViewerProps {
   geometryData: PhaseGeometryData | null;
+  topographyData?: PhaseGeometryData | null;
   showTopography?: boolean;
   showPit?: boolean;
   showStrings?: boolean;
@@ -66,12 +67,29 @@ function getCenter(bounds: Bounds) {
   };
 }
 
+function mergeBounds(primary: Bounds, secondary?: Bounds | null): Bounds {
+  if (!secondary) return primary;
+  return {
+    minX: Math.min(primary.minX, secondary.minX),
+    maxX: Math.max(primary.maxX, secondary.maxX),
+    minY: Math.min(primary.minY, secondary.minY),
+    maxY: Math.max(primary.maxY, secondary.maxY),
+    minZ: Math.min(primary.minZ, secondary.minZ),
+    maxZ: Math.max(primary.maxZ, secondary.maxZ),
+  };
+}
+
 function colorForMode(
   mode: ViewerColorMode,
   elevationRatio: number,
   phaseRatio: number,
   metrics: ViewerEconomicMetrics,
+  group: 'Topografía' | 'Pit',
 ): THREE.Color {
+  if (group === 'Topografía') {
+    return new THREE.Color().setHSL(0.58, 0.12, 0.42 + elevationRatio * 0.18);
+  }
+
   const clampedElevation = THREE.MathUtils.clamp(elevationRatio, 0, 1);
   const clampedPhase = THREE.MathUtils.clamp(phaseRatio, 0, 1);
 
@@ -91,53 +109,21 @@ function colorForMode(
         : new THREE.Color().setHSL(0.02, 0.82, 0.44 + Math.abs(delta) * 0.2);
     }
     case 'reserves': {
-      const reserveStrength = THREE.MathUtils.clamp(metrics.reserves / 700, 0.2, 1);
+      const reserveStrength = THREE.MathUtils.clamp(metrics.reserves / 1500, 0.2, 1);
       return new THREE.Color().setHSL(0.58, 0.78, 0.24 + reserveStrength * clampedPhase * 0.38);
     }
     case 'grade': {
-      const gradeStrength = THREE.MathUtils.clamp(metrics.grade / 1.5, 0.15, 1);
+      const gradeStrength = THREE.MathUtils.clamp(metrics.grade / 2, 0.15, 1);
       return new THREE.Color().setHSL(0.12 - clampedElevation * 0.08, 0.88, 0.28 + gradeStrength * 0.42);
     }
     case 'strip_ratio': {
-      const stripStrength = THREE.MathUtils.clamp(metrics.stripRatio / 5.5, 0.1, 1);
+      const stripStrength = THREE.MathUtils.clamp(metrics.stripRatio / 6, 0.1, 1);
       return new THREE.Color().setHSL(0.14 - stripStrength * 0.12, 0.86, 0.32 + (1 - clampedElevation) * 0.28);
     }
     case 'component':
     default:
       return new THREE.Color('#38bdf8');
   }
-}
-
-function triangleAverageElevation(
-  triangle: Triangle,
-  pointMap: Map<number, Point3D>,
-): number {
-  const points = [
-    pointMap.get(triangle.pid1),
-    pointMap.get(triangle.pid2),
-    pointMap.get(triangle.pid3),
-  ].filter((point): point is Point3D => point !== undefined);
-
-  if (points.length !== 3) return Number.NEGATIVE_INFINITY;
-  return points.reduce((sum, point) => sum + point.z, 0) / 3;
-}
-
-function visibleTrianglesForPhase(
-  triangles: Triangle[],
-  points: Point3D[],
-  phaseStep: number,
-): Triangle[] {
-  const pointMap = new Map(points.map((point) => [point.pid, point]));
-  const sorted = [...triangles].sort(
-    (left, right) =>
-      triangleAverageElevation(right, pointMap) -
-      triangleAverageElevation(left, pointMap),
-  );
-  const visibleCount = Math.max(
-    1,
-    Math.ceil(sorted.length * THREE.MathUtils.clamp(phaseStep / 6, 1 / 6, 1)),
-  );
-  return sorted.slice(0, visibleCount);
 }
 
 function buildMeshGeometry(
@@ -147,6 +133,7 @@ function buildMeshGeometry(
   colorMode: ViewerColorMode,
   phaseStep: number,
   metrics: ViewerEconomicMetrics,
+  group: 'Topografía' | 'Pit',
 ): THREE.BufferGeometry {
   const geometry = new THREE.BufferGeometry();
   const pointMap = new Map(points.map((point) => [point.pid, point]));
@@ -171,7 +158,13 @@ function buildMeshGeometry(
         -(point.y - center.y),
       );
       const elevationRatio = (point.z - bounds.minZ) / elevationRange;
-      const color = colorForMode(colorMode, elevationRatio, phaseRatio, metrics);
+      const color = colorForMode(
+        colorMode,
+        elevationRatio,
+        phaseRatio,
+        metrics,
+        group,
+      );
       colors.push(color.r, color.g, color.b);
     }
   }
@@ -192,6 +185,8 @@ function TriangleMesh({
   colorMode,
   phaseStep,
   economicMetrics,
+  opacity,
+  depthWrite,
   onHover,
 }: {
   group: 'Topografía' | 'Pit';
@@ -202,25 +197,24 @@ function TriangleMesh({
   colorMode: ViewerColorMode;
   phaseStep: number;
   economicMetrics: ViewerEconomicMetrics;
+  opacity: number;
+  depthWrite: boolean;
   onHover?: (data: HoveredGeometry | null) => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const center = useMemo(() => getCenter(bounds), [bounds]);
-  const visibleTriangles = useMemo(
-    () => visibleTrianglesForPhase(triangles, points, phaseStep),
-    [triangles, points, phaseStep],
-  );
   const meshGeometry = useMemo(
     () =>
       buildMeshGeometry(
-        visibleTriangles,
+        triangles,
         points,
         bounds,
         colorMode,
         phaseStep,
         economicMetrics,
+        group,
       ),
-    [visibleTriangles, points, bounds, colorMode, phaseStep, economicMetrics],
+    [triangles, points, bounds, colorMode, phaseStep, economicMetrics, group],
   );
 
   useEffect(() => () => meshGeometry.dispose(), [meshGeometry]);
@@ -233,9 +227,9 @@ function TriangleMesh({
       y: -event.point.z + center.y,
       z: event.point.y + center.z,
     };
-    const faceIndex = Number.isInteger(event.faceIndex) ? event.faceIndex ?? 0 : 0;
-    const safeIndex = Math.min(Math.max(faceIndex, 0), visibleTriangles.length - 1);
-    const triangle = visibleTriangles[safeIndex];
+    const faceIndex = typeof event.faceIndex === 'number' ? event.faceIndex : 0;
+    const safeIndex = Math.min(Math.max(faceIndex, 0), triangles.length - 1);
+    const triangle = triangles[safeIndex];
 
     onHover?.({
       group,
@@ -251,6 +245,7 @@ function TriangleMesh({
   return (
     <mesh
       geometry={meshGeometry}
+      renderOrder={group === 'Topografía' ? 0 : 1}
       onPointerMove={handlePointerMove}
       onPointerOut={(event) => {
         event.stopPropagation();
@@ -262,8 +257,9 @@ function TriangleMesh({
         vertexColors
         wireframe={wireframe}
         side={THREE.DoubleSide}
-        opacity={hovered ? 0.96 : 0.84}
-        transparent
+        opacity={hovered ? Math.min(opacity + 0.08, 1) : opacity}
+        transparent={opacity < 1}
+        depthWrite={depthWrite}
         roughness={0.72}
         metalness={0.08}
       />
@@ -302,6 +298,7 @@ function StringLine({ cutString, bounds }: { cutString: CutString; bounds: Bound
 
 export default function DataminePhaseViewer({
   geometryData,
+  topographyData = null,
   showTopography = false,
   showPit = true,
   showStrings = false,
@@ -315,7 +312,10 @@ export default function DataminePhaseViewer({
     return <div className="viewer-empty">Sin geometría cargada</div>;
   }
 
-  const { bounds } = geometryData;
+  const bounds = mergeBounds(
+    geometryData.bounds,
+    showTopography ? topographyData?.bounds : null,
+  );
   const maxRange = Math.max(
     bounds.maxX - bounds.minX,
     bounds.maxY - bounds.minY,
@@ -350,19 +350,23 @@ export default function DataminePhaseViewer({
         <directionalLight position={[10, 14, 8]} intensity={1.28} />
         <directionalLight position={[-8, 5, -10]} intensity={0.38} />
 
-        {showTopography && geometryData.triangles.topography.length > 0 && (
-          <TriangleMesh
-            group="Topografía"
-            triangles={geometryData.triangles.topography}
-            points={geometryData.points}
-            bounds={bounds}
-            wireframe={showWireframe}
-            colorMode={colorMode}
-            phaseStep={phaseStep}
-            economicMetrics={economicMetrics}
-            onHover={onTriangleHover}
-          />
-        )}
+        {showTopography &&
+          topographyData &&
+          topographyData.triangles.topography.length > 0 && (
+            <TriangleMesh
+              group="Topografía"
+              triangles={topographyData.triangles.topography}
+              points={topographyData.points}
+              bounds={bounds}
+              wireframe={showWireframe}
+              colorMode="component"
+              phaseStep={phaseStep}
+              economicMetrics={economicMetrics}
+              opacity={0.28}
+              depthWrite={false}
+              onHover={onTriangleHover}
+            />
+          )}
 
         {showPit && geometryData.triangles.pit.length > 0 && (
           <TriangleMesh
@@ -374,6 +378,8 @@ export default function DataminePhaseViewer({
             colorMode={colorMode}
             phaseStep={phaseStep}
             economicMetrics={economicMetrics}
+            opacity={0.88}
+            depthWrite
             onHover={onTriangleHover}
           />
         )}
