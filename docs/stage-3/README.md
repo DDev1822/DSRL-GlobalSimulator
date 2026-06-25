@@ -1,8 +1,8 @@
-# Etapa 3 — Contrato geométrico multi-pit
+# Etapa 3 — Catálogo geométrico Datamine real
 
 ## Objetivo
 
-Preparar el simulador para recibir topografía y pits F1–F6 como superficies Datamine independientes, manteniendo un par `_pt/_tr` por superficie y construyendo un catálogo común en memoria.
+Integrar topografía y pits F1–F6 como superficies Datamine independientes, manteniendo un par `_pt/_tr` por superficie y construyendo un catálogo común en memoria.
 
 ## Decisión arquitectónica
 
@@ -21,7 +21,9 @@ El parser carga las superficies declaradas en `public/data/datamine/geometry-man
 catalog.topography
 catalog.phases[1]
 catalog.phases[2]
-...
+catalog.phases[3]
+catalog.phases[4]
+catalog.phases[5]
 catalog.phases[6]
 ```
 
@@ -29,53 +31,51 @@ Cada superficie conserva sus PID originales. No se exige unicidad global entre p
 
 ## Estado actual
 
-El manifiesto declara solamente:
+El catálogo declara y carga:
 
 ```text
-PIT_F6
+TOPOGRAPHY → Topos_pt.csv + Topos_tr.csv
+PIT_F1     → P01pt.csv   + P01tr.csv
+PIT_F2     → P02pt.csv   + P02tr.csv
+PIT_F3     → P03pt.csv   + P03tr.csv
+PIT_F4     → P04pt.csv   + P04tr.csv
+PIT_F5     → P05pt.csv   + P05tr.csv
+PIT_F6     → P06pt.csv   + P06tr.csv
 ```
 
-con los archivos existentes:
-
-```text
-/data/Design Pit_pt.csv
-/data/Design Pit_tr.csv
-```
-
-La topografía permanece declarada como `null` hasta recibir los archivos reales.
+Los archivos anteriores `Design Pit_pt.csv` y `Design Pit_tr.csv` fueron sustituidos por el conjunto real de fases.
 
 ## Funciones implementadas
 
 - `parseDatamineGeometryCatalog()` carga todas las superficies habilitadas;
 - `parsePhaseGeometry(phase)` obtiene una fase real concreta;
-- `parsePhase6Geometry()` mantiene compatibilidad con el visor actual;
+- `parsePhase6Geometry()` mantiene compatibilidad con el resto del dashboard;
 - carga concurrente de superficies;
 - validación independiente de PID por cada par;
 - reporte de fases disponibles;
 - reporte de archivos faltantes;
 - aliases de encabezados Datamine;
-- metadatos visibles de superficie activa;
-- fallback controlado a la fase más alta disponible si F6 falta.
+- selección real de F1–F6 desde el visor;
+- reproducción secuencial entre pits reales;
+- botones anterior, siguiente y reinicio sobre fases reales;
+- topografía activable y desactivable;
+- superposición semitransparente de topografía;
+- alineamiento espacial mediante límites combinados;
+- metadatos visibles de superficie y fase activa.
 
-## Manifiesto
+## Comportamiento del visor
 
-Cada fase se registra así:
+Cada botón F1–F6 carga la geometría completa de su pit correspondiente. Ya no se utiliza un porcentaje de triángulos de F6 para simular fases anteriores.
 
-```json
-{
-  "id": "PIT_F4",
-  "name": "Pit F4",
-  "phase": 4,
-  "type": "pit",
-  "pointsFile": "/data/datamine/phases/pit_f4_pt.csv",
-  "trianglesFile": "/data/datamine/phases/pit_f4_tr.csv",
-  "expectedPoints": 12345,
-  "expectedTriangles": 24000,
-  "enabled": true
-}
-```
+La topografía se carga como superficie independiente y puede mostrarse u ocultarse sin modificar los archivos de los pits.
 
-Los conteos esperados son opcionales, pero recomendables para detectar archivos incompletos.
+Al cambiar de fase, el visor:
+
+1. selecciona el par `_pt/_tr` real;
+2. reconstruye la malla;
+3. reinicia la cámara para encuadrar la nueva superficie;
+4. conserva la capa económica seleccionada;
+5. conserva wireframe y estado de topografía.
 
 ## Validación
 
@@ -87,8 +87,8 @@ npm run verify:stage3
 El comando ejecuta:
 
 1. validación del manifiesto;
-2. validación de cada par `_pt/_tr`;
-3. conectividad PID;
+2. validación de topografía y F1–F6;
+3. conectividad PID por superficie;
 4. auditorías de etapas 0–3;
 5. pruebas económicas;
 6. TypeScript;
@@ -96,19 +96,20 @@ El comando ejecuta:
 
 ## Criterios de cierre
 
-- F6 carga mediante el manifiesto;
-- el visor identifica `PIT_F6` y `F6` como fuente real;
-- no existen rutas fijas únicas dentro del parser;
-- topografía ausente se reporta sin romper la aplicación;
-- nuevas fases pueden agregarse solo mediante archivos y manifiesto;
-- la línea base visual y económica permanece intacta.
+- topografía y F1–F6 están declarados;
+- cada par `_pt/_tr` carga independientemente;
+- todos los triángulos referencian PID existentes;
+- los botones F1–F6 muestran superficies reales;
+- play recorre pits reales;
+- la topografía se superpone correctamente;
+- el pit activo muestra su ID, fase, puntos, triángulos y elevación;
+- no existe recorte porcentual del pit final;
+- la línea base económica permanece intacta.
 
 ## Fuera del alcance
 
-- selección visual entre pits reales;
-- superposición topografía-pit;
-- comparación geométrica entre fases;
+- comparación simultánea entre dos pits;
+- diferencias volumétricas entre fases;
 - agrupación por bancos;
-- economía real por banco.
-
-Esas funciones se construirán encima del catálogo multi-pit ya normalizado.
+- economía real por banco;
+- conexión con modelo de bloques.
