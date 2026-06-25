@@ -13,9 +13,6 @@ source = source
     "from '../utils/datamineParser';",
   );
 
-const hoverCardClass =
-  'className="absolute top-3 right-3 bg-slate-900/95 border border-emerald-500/50 rounded-lg p-3 shadow-2xl min-w-[210px] pointer-events-none"';
-
 const hoverCardInline = `className="datamine-hover-card" style={{
   position: 'absolute',
   top: 12,
@@ -33,9 +30,14 @@ const hoverCardInline = `className="datamine-hover-card" style={{
   WebkitBackdropFilter: 'blur(6px)'
 }}`;
 
-if (source.includes(hoverCardClass)) {
-  source = source.replace(hoverCardClass, hoverCardInline);
-}
+let hoverCardUpdated = source.includes('className="datamine-hover-card"');
+source = source.replace(
+  /className="absolute top-3 right-3[^"]*pointer-events-none"/,
+  () => {
+    hoverCardUpdated = true;
+    return hoverCardInline;
+  },
+);
 
 if (
   source.includes("from './components/DataminePhaseViewer';") ||
@@ -44,8 +46,8 @@ if (
   throw new Error('No se pudieron corregir las rutas del archivo generado.');
 }
 
-if (source.includes(hoverCardClass)) {
-  throw new Error('No se pudo compactar la tarjeta flotante de información Datamine.');
+if (!hoverCardUpdated) {
+  throw new Error('No se encontró la tarjeta flotante de información Datamine para compactarla.');
 }
 
 await writeFile(file, source, 'utf8');
