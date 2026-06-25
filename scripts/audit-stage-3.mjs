@@ -85,9 +85,9 @@ requireToken(validator, 'availablePhases', 'Reporte de fases disponibles');
 requireToken(validator, 'topographyAvailable', 'Reporte de topografía');
 requireToken(validator, 'invalidPidTriangles', 'Control de conectividad PID');
 
-requireToken(workspace, 'geometry.dataSource.geometryName', 'Nombre de superficie visible');
-requireToken(workspace, 'geometry.dataSource.geometryId', 'ID de superficie visible');
-requireToken(workspace, 'geometry.dataSource.phase', 'Fase real visible');
+requireToken(workspace, 'dataSource.geometryName', 'Nombre de superficie visible');
+requireToken(workspace, 'dataSource.geometryId', 'ID de superficie visible');
+requireToken(workspace, 'dataSource.phase', 'Fase real visible');
 requireToken(workspace, 'archivos _pt y _tr se conservan separados', 'Mensaje de arquitectura separada');
 
 console.log('\nSTAGE 3 AUDIT SUMMARY');
