@@ -16,6 +16,7 @@
     "validate:sensitivity": "node scripts/validate-recommendation-sensitivity.mjs",
     "validate:block-contract": "node scripts/validate-block-model-contract.mjs",
     "validate:block-ingestion": "node scripts/validate-block-model-ingestion.mjs",
+    "validate:block-inventory": "node scripts/validate-block-inventory.mjs",
     "audit:baseline": "node scripts/audit-baseline.mjs",
     "audit:stage1": "node scripts/audit-stage-1.mjs",
     "audit:stage2": "node scripts/audit-stage-2.mjs",
@@ -26,6 +27,7 @@
     "audit:stage7": "node scripts/audit-stage-7.mjs",
     "audit:stage8-1": "node scripts/audit-stage-8-1.mjs",
     "audit:stage8-2": "node scripts/audit-stage-8-2.mjs",
+    "audit:stage8-3": "node scripts/audit-stage-8-3.mjs",
     "verify:baseline": "npm run validate:data && npm run audit:baseline && npm run typecheck && npm run build",
     "verify:stage1": "npm run validate:data && npm run audit:baseline && npm run audit:stage1 && npm run validate:economics && npm run typecheck && npm run build",
     "verify:stage2": "npm run validate:data && npm run audit:baseline && npm run audit:stage1 && npm run audit:stage2 && npm run validate:economics && npm run typecheck && npm run build",
@@ -35,7 +37,8 @@
     "verify:stage6": "npm run verify:stage5 && npm run audit:stage6 && npm run validate:recommendation && npm run typecheck && npm run build",
     "verify:stage7": "npm run verify:stage6 && npm run audit:stage7 && npm run validate:sensitivity && npm run typecheck && npm run build",
     "verify:stage8-1": "npm run verify:stage7 && npm run audit:stage8-1 && npm run validate:block-contract && npm run typecheck && npm run build",
-    "verify:stage8-2": "npm run verify:stage8-1 && npm run audit:stage8-2 && npm run validate:block-ingestion && npm run typecheck && npm run build"
+    "verify:stage8-2": "npm run verify:stage8-1 && npm run audit:stage8-2 && npm run validate:block-ingestion && npm run typecheck && npm run build",
+    "verify:stage8-3": "npm run verify:stage8-2 && npm run audit:stage8-3 && npm run validate:block-inventory && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.3",
