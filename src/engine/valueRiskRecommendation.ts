@@ -53,23 +53,23 @@ export const DECISION_PROFILES: Record<DecisionProfile, DecisionProfileDefinitio
   conservative: {
     id: 'conservative',
     label: 'Conservador',
-    valueWeight: 0.35,
-    riskWeight: 0.65,
-    description: 'Prioriza menor exposición geométrica y operacional relativa.',
+    valueWeight: 0.2,
+    riskWeight: 0.8,
+    description: 'Prioriza el extremo de menor exposición relativa dentro de la frontera eficiente.',
   },
   balanced: {
     id: 'balanced',
     label: 'Balanceado',
-    valueWeight: 0.55,
-    riskWeight: 0.45,
-    description: 'Equilibra captura de valor y exposición relativa.',
+    valueWeight: 0.5,
+    riskWeight: 0.5,
+    description: 'Busca el punto rodilla más cercano al ideal de alto valor y bajo riesgo.',
   },
   aggressive: {
     id: 'aggressive',
     label: 'Agresivo',
-    valueWeight: 0.75,
-    riskWeight: 0.25,
-    description: 'Prioriza captura de valor y tolera mayor exposición relativa.',
+    valueWeight: 0.9,
+    riskWeight: 0.1,
+    description: 'Prioriza el extremo de mayor valor dentro de la frontera eficiente.',
   },
 };
 
@@ -110,6 +110,28 @@ function calculateEfficientFrontier(
   }
 
   return frontier;
+}
+
+function calculateProfileScore(
+  valueScore: number,
+  riskScore: number,
+  profile: DecisionProfileDefinition,
+): number {
+  if (profile.id === 'balanced') {
+    const valueGap = (100 - valueScore) * profile.valueWeight;
+    const riskExposure = riskScore * profile.riskWeight;
+    const maximumDistance = Math.hypot(
+      100 * profile.valueWeight,
+      100 * profile.riskWeight,
+    );
+    const idealDistance = Math.hypot(valueGap, riskExposure);
+    return clamp(100 - (idealDistance / maximumDistance) * 100);
+  }
+
+  return clamp(
+    valueScore * profile.valueWeight +
+      (100 - riskScore) * profile.riskWeight,
+  );
 }
 
 function nearestAlternative(
@@ -182,16 +204,15 @@ export function recommendOptimalPhase(
       riskMetrics.stripRatioScore * 0.3 +
       riskMetrics.footprintScore * 0.2 +
       riskMetrics.complexityScore * 0.15;
-    const recommendationScore =
-      valueScore * profile.valueWeight +
-      (100 - riskScore) * profile.riskWeight;
 
     return {
       phase: snapshot.phase,
       geometryId: snapshot.geometryId,
       valueScore: round(valueScore),
       riskScore: round(riskScore),
-      recommendationScore: round(recommendationScore),
+      recommendationScore: round(
+        calculateProfileScore(valueScore, riskScore, profile),
+      ),
       isEfficientFrontier: false,
       valueMetrics,
       riskMetrics,
@@ -204,7 +225,12 @@ export function recommendOptimalPhase(
     ...score,
     isEfficientFrontier: frontierPhases.has(score.phase),
   }));
-  const ranking = [...scores].sort(
+  const frontierCandidates = scores.filter(
+    (score) => score.isEfficientFrontier,
+  );
+  const rankingPool =
+    frontierCandidates.length > 0 ? frontierCandidates : scores;
+  const ranking = [...rankingPool].sort(
     (left, right) =>
       right.recommendationScore - left.recommendationScore ||
       left.riskScore - right.riskScore,
@@ -216,12 +242,18 @@ export function recommendOptimalPhase(
     : 100;
   const confidence = scoreGap >= 12 ? 'high' : scoreGap >= 5 ? 'medium' : 'low';
 
+  const profileReason =
+    profile.id === 'conservative'
+      ? 'El perfil conservador favorece la menor exposición relativa entre las fases eficientes.'
+      : profile.id === 'aggressive'
+        ? 'El perfil agresivo favorece la mayor captura de valor entre las fases eficientes.'
+        : 'El perfil balanceado selecciona el punto rodilla más cercano al ideal valor alto–riesgo bajo.';
+
   const reasons = [
     `F${recommended.phase} obtiene el mayor puntaje para el perfil ${profile.label.toLowerCase()}.`,
+    profileReason,
     `Combina valor ${recommended.valueScore.toFixed(1)}/100 con riesgo relativo ${recommended.riskScore.toFixed(1)}/100.`,
-    recommended.isEfficientFrontier
-      ? 'La fase pertenece a la frontera eficiente valor–riesgo.'
-      : 'La fase gana por ponderación, aunque existe una alternativa no dominada en la frontera.',
+    'La recomendación se elige únicamente entre fases no dominadas de la frontera valor–riesgo.',
   ];
 
   return {
