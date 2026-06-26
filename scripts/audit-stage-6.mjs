@@ -34,8 +34,12 @@ for (const token of [
   'riskScore',
   'recommendationScore',
   'calculateEfficientFrontier',
+  'calculateProfileScore',
+  'idealDistance',
+  'frontierCandidates',
   'recommendOptimalPhase',
   'isEfficientFrontier',
+  'punto rodilla',
   'relative-screening-not-geotechnical',
   'analytical-proxy',
 ]) requireToken(engine, token, `recommendation engine: ${token}`);
