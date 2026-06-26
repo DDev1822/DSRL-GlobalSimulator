@@ -77,7 +77,7 @@ interface InventoryAccumulator {
   maxElevationM: number | null;
 }
 
-const CLOSE_TOLERANCE = 1e-6;
+const CLOSE_TOLERANCE = 1e-9;
 
 function blankAccumulator(): InventoryAccumulator {
   return {
@@ -205,11 +205,12 @@ function isMonotonic(values: number[]): boolean {
 export function buildBlockInventory(
   dataset: BlockModelDataset,
 ): BlockInventoryReport {
-  const byPhase = new Map<SupportedPhase, InventoryAccumulator>(
-    SUPPORTED_PHASES.map((phase) => [phase, blankAccumulator()]),
-  );
-  let excludedFutureBlockCount = 0;
+  const byPhase = new Map<SupportedPhase, InventoryAccumulator>();
+  for (const phase of SUPPORTED_PHASES) {
+    byPhase.set(phase, blankAccumulator());
+  }
 
+  let excludedFutureBlockCount = 0;
   for (const row of dataset.rows) {
     if (!SUPPORTED_PHASES.includes(row.PSB_PIT as SupportedPhase)) {
       excludedFutureBlockCount += 1;
@@ -219,7 +220,7 @@ export function buildBlockInventory(
   }
 
   let cumulativeAccumulator = blankAccumulator();
-  const phaseInventories = SUPPORTED_PHASES.map((phase) => {
+  const phaseInventories: PhasePhysicalInventory[] = SUPPORTED_PHASES.map((phase) => {
     const incrementalAccumulator = byPhase.get(phase)!;
     cumulativeAccumulator = mergeAccumulators(
       cumulativeAccumulator,
