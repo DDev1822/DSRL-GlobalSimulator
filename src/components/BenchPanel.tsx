@@ -73,6 +73,35 @@ export default function BenchPanel() {
   const selected: BenchRecord | null =
     analysis?.benches.find((bench) => bench.id === benchId) ?? null;
 
+  const phaseSummary = useMemo(() => {
+    if (!analysis) return null;
+    return {
+      areaHa: analysis.totalSurfaceAreaM2 / 10_000,
+      resourceMt: analysis.benches.reduce(
+        (sum, bench) => sum + bench.resourceEstimateMt,
+        0,
+      ),
+      npvUsdM: analysis.benches.reduce(
+        (sum, bench) => sum + bench.incrementalNpvUsdM,
+        0,
+      ),
+      benches: analysis.benches.length,
+    };
+  }, [analysis]);
+
+  const valueRanking = useMemo(
+    () =>
+      [...(analysis?.benches ?? [])]
+        .sort((left, right) => right.incrementalNpvUsdM - left.incrementalNpvUsdM)
+        .slice(0, 5),
+    [analysis],
+  );
+
+  const maxRankingValue = Math.max(
+    ...valueRanking.map((bench) => Math.abs(bench.incrementalNpvUsdM)),
+    1,
+  );
+
   if (!open) {
     return (
       <button
@@ -92,27 +121,35 @@ export default function BenchPanel() {
     <aside className="bench-dock" aria-label="Análisis por bancos">
       <header>
         <strong>ETAPA 4 · BANCOS</strong>
-        <button type="button" onClick={() => setOpen(false)} title="Cerrar"><X size={15} /></button>
+        <button type="button" onClick={() => setOpen(false)} title="Cerrar">
+          <X size={15} />
+        </button>
       </header>
 
       <div className="controls">
         <label>
           <span>FASE REAL</span>
           <select value={phase} onChange={(event) => setPhase(Number(event.target.value))}>
-            {(catalog?.availablePhases ?? [6]).map((value) => <option key={value} value={value}>F{value}</option>)}
+            {(catalog?.availablePhases ?? [6]).map((value) => (
+              <option key={value} value={value}>F{value}</option>
+            ))}
           </select>
         </label>
         <label>
           <span>ALTURA DE BANCO</span>
           <select value={benchHeight} onChange={(event) => setBenchHeight(Number(event.target.value))}>
-            {[5, 10, 15, 20].map((value) => <option key={value} value={value}>{value} m</option>)}
+            {[5, 10, 15, 20].map((value) => (
+              <option key={value} value={value}>{value} m</option>
+            ))}
           </select>
         </label>
         <label style={{ gridColumn: '1 / -1' }}>
           <span>BANCO SELECCIONADO</span>
           <select value={benchId} onChange={(event) => setBenchId(event.target.value)}>
             {analysis?.benches.map((bench) => (
-              <option key={bench.id} value={bench.id}>{bench.id} · {bench.floorElevationM.toFixed(0)}–{bench.crestElevationM.toFixed(0)} m</option>
+              <option key={bench.id} value={bench.id}>
+                {bench.id} · {bench.floorElevationM.toFixed(0)}–{bench.crestElevationM.toFixed(0)} m
+              </option>
             ))}
           </select>
         </label>
@@ -120,6 +157,18 @@ export default function BenchPanel() {
 
       {error && <div className="bench-status">{error}</div>}
       {!error && !selected && <div className="bench-status">Calculando bancos Datamine…</div>}
+
+      {phaseSummary && (
+        <section className="bench-phase-summary">
+          <h3>RESUMEN DE FASE F{phase}</h3>
+          <div>
+            <span>Bancos</span><b>{phaseSummary.benches}</b>
+            <span>Área total</span><b>{phaseSummary.areaHa.toFixed(2)} ha</b>
+            <span>Recurso fase*</span><b>{phaseSummary.resourceMt.toFixed(2)} Mt</b>
+            <span>VAN fase*</span><b>{money(phaseSummary.npvUsdM)}</b>
+          </div>
+        </section>
+      )}
 
       {selected && (
         <section className="bench-card">
@@ -134,8 +183,27 @@ export default function BenchPanel() {
             <div><span>Strip ratio*</span><b>{selected.stripRatioEstimate.toFixed(2)} : 1</b></div>
             <div><span>VAN incremental*</span><b>{money(selected.incrementalNpvUsdM)}</b></div>
             <div><span>VAN acumulado*</span><b>{money(selected.cumulativeNpvUsdM)}</b></div>
-            <div><span>Total bancos</span><b>{analysis?.benches.length ?? 0}</b></div>
+            <div><span>Participación área</span><b>{(selected.areaShare * 100).toFixed(1)} %</b></div>
           </div>
+        </section>
+      )}
+
+      {valueRanking.length > 0 && (
+        <section className="bench-ranking">
+          <h3>TOP 5 · VAN INCREMENTAL*</h3>
+          {valueRanking.map((bench, index) => (
+            <button
+              key={bench.id}
+              type="button"
+              className={bench.id === selected?.id ? 'selected' : ''}
+              onClick={() => setBenchId(bench.id)}
+            >
+              <span className="rank">#{index + 1}</span>
+              <span className="name">{bench.id}</span>
+              <span className="bar"><i style={{ width: `${Math.max(8, Math.abs(bench.incrementalNpvUsdM) / maxRankingValue * 100)}%` }} /></span>
+              <b>{money(bench.incrementalNpvUsdM)}</b>
+            </button>
+          ))}
         </section>
       )}
 
