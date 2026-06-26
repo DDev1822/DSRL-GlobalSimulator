@@ -4,9 +4,11 @@ La aplicación incorpora el botón `FASE ÓPTIMA`.
 
 ## Perfiles de decisión
 
-- **Conservador:** pondera 35 % valor y 65 % control de riesgo relativo.
-- **Balanceado:** pondera 55 % valor y 45 % control de riesgo relativo.
-- **Agresivo:** pondera 75 % valor y 25 % control de riesgo relativo.
+- **Conservador:** 20 % valor y 80 % control del riesgo relativo. Elige el extremo eficiente de menor exposición.
+- **Balanceado:** 50 % valor y 50 % riesgo. Busca el punto rodilla más cercano al ideal de alto valor y bajo riesgo.
+- **Agresivo:** 90 % valor y 10 % control del riesgo relativo. Elige el extremo eficiente de mayor valor.
+
+Las recomendaciones solo compiten entre fases pertenecientes a la frontera no dominada.
 
 ## Puntaje de valor
 
@@ -30,10 +32,11 @@ Este puntaje no representa riesgo geotécnico. Es un screening relativo para com
 
 ## Recomendación
 
-El puntaje combinado se calcula como:
+Conservador y Agresivo utilizan una utilidad ponderada entre valor y control del riesgo. Balanceado minimiza la distancia al punto ideal:
 
 ```text
-valor × peso de valor + (100 − riesgo) × peso de riesgo
+valor = 100
+riesgo = 0
 ```
 
 El panel muestra:
@@ -53,6 +56,8 @@ Una fase pertenece a la frontera valor–riesgo cuando ninguna otra fase ofrece 
 - riesgo igual o menor;
 - al menos una mejora estricta.
 
+Una fase dominada nunca puede convertirse en recomendación, aunque su ponderación aislada sea alta.
+
 ## Calidad de datos
 
 - geometría: derivada de las superficies Datamine reales;
@@ -62,6 +67,14 @@ Una fase pertenece a la frontera valor–riesgo cuando ninguna otra fase ofrece 
 La decisión final requiere modelo de bloques, geotecnia, secuenciamiento y restricciones operativas.
 
 ## Validación
+
+La prueba sintética exige tres decisiones diferenciadas:
+
+```text
+Conservador → fase de menor exposición
+Balanceado  → punto rodilla
+Agresivo    → fase de mayor valor eficiente
+```
 
 ```bash
 npm install
