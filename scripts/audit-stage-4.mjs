@@ -51,10 +51,17 @@ for (const token of [
   'Strip ratio*',
   'VAN incremental*',
   'VAN acumulado*',
+  'RESUMEN DE FASE',
+  'TOP 5 · VAN INCREMENTAL*',
+  'phaseSummary',
+  'valueRanking',
   'proxies analíticos',
   'escenario económico guardado',
 ]) requireToken(panel, token, `bench panel: ${token}`);
 
+requireToken(styles, '.pit-stats{display:none!important}', 'estadísticas técnicas ocultas');
+requireToken(styles, '.bench-phase-summary', 'resumen de fase estilizado');
+requireToken(styles, '.bench-ranking', 'ranking de bancos estilizado');
 requireToken(styles, '.bench-dock', 'panel flotante estilizado');
 requireToken(main, '<BenchPanel />', 'panel montado en la aplicación');
 
