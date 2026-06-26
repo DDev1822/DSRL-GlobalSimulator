@@ -59,7 +59,9 @@ for (const token of [
   'escenario económico guardado',
 ]) requireToken(panel, token, `bench panel: ${token}`);
 
-requireToken(styles, '.pit-stats{display:none!important}', 'estadísticas técnicas ocultas');
+requireToken(styles, '.pit-stats', 'estadísticas técnicas ocultas');
+requireToken(styles, '.hover-readout', 'lectura técnica del cursor oculta');
+requireToken(styles, 'display:none!important', 'regla de ocultamiento técnico');
 requireToken(styles, '.bench-phase-summary', 'resumen de fase estilizado');
 requireToken(styles, '.bench-ranking', 'ranking de bancos estilizado');
 requireToken(styles, '.bench-dock', 'panel flotante estilizado');
