@@ -15,6 +15,26 @@ export default function EconomicCurve({ results }: EconomicCurveProps) {
   const chartRef = useRef<SVGSVGElement>(null);
   const [hoveredPoint, setHoveredPoint] = useState<EconomicPoint | null>(null);
 
+  if (results.dataPoints.length === 0) {
+    return (
+      <div className="curve-workspace">
+        <aside className="curve-sidecard">
+          <div className="sidecard-eyebrow">LECTURA INTERACTIVA</div>
+          <div className="sidecard-title">CURVA ECONÓMICA</div>
+          <p className="sidecard-copy">
+            No hay puntos económicos disponibles para graficar este escenario.
+          </p>
+        </aside>
+        <div className="curve-canvas">
+          <div className="chart-empty-state" role="status">
+            <strong>Sin datos de curva</strong>
+            <span>Ajusta los parámetros económicos o recarga el escenario.</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const maxCutoff = Math.max(results.maximumEvaluatedCutoff, 0.01);
   const maxTonnage = Math.max(
     ...results.dataPoints.map((point) => point.tonnage),
@@ -115,14 +135,14 @@ export default function EconomicCurve({ results }: EconomicCurveProps) {
         <div className="sidecard-eyebrow">LECTURA INTERACTIVA</div>
         <div className="sidecard-title">CURVA ECONÓMICA</div>
         <p className="sidecard-copy">
-          Mueve el cursor sobre la curva para leer tonelaje, ley, VAN, TIR y vida de mina.
+          Mueve el cursor sobre la curva para leer tonelaje, ley, VAN, TIR y vida de mina. Las series se muestran en escalas normalizadas.
         </p>
         <div className="curve-legend">
           <span><i className="dot ton" /> TON</span>
           <span><i className="dot grade" /> LEY</span>
           <span><i className="dot npv" /> VAN</span>
         </div>
-        <div className="live-values">
+        <div className="live-values" aria-live="polite">
           <div><span>Cut-off</span><strong>{activePoint.cutoff.toFixed(3)} % Cu</strong></div>
           <div><span>Tonelaje</span><strong>{activePoint.tonnage.toFixed(1)} Mt</strong></div>
           <div><span>Ley media</span><strong>{activePoint.averageGrade.toFixed(3)} %</strong></div>
@@ -139,8 +159,14 @@ export default function EconomicCurve({ results }: EconomicCurveProps) {
           preserveAspectRatio="none"
           onMouseMove={handleMove}
           onMouseLeave={() => setHoveredPoint(null)}
-          aria-label="Curva económica Ton-Grade-VAN interactiva"
+          aria-labelledby="economic-curve-title economic-curve-desc"
+          role="img"
+          tabIndex={0}
         >
+          <title id="economic-curve-title">Curva económica Ton-Grade-VAN interactiva</title>
+          <desc id="economic-curve-desc">
+            Gráfico de sensibilidad con tonelaje, ley media y VAN por ley de corte. El punto activo resume cut-off, tonelaje, ley, VAN, TIR y vida de mina en el panel lateral.
+          </desc>
           <defs>
             <linearGradient id="npv-area" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#2dd4bf" stopOpacity="0.42" />
@@ -156,43 +182,22 @@ export default function EconomicCurve({ results }: EconomicCurveProps) {
           </defs>
 
           {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
-            <line
-              key={`h-${ratio}`}
-              x1={PADDING.left}
-              x2={PADDING.left + PLOT_WIDTH}
-              y1={PADDING.top + ratio * PLOT_HEIGHT}
-              y2={PADDING.top + ratio * PLOT_HEIGHT}
-              stroke="#294161"
-              strokeDasharray="3 4"
-            />
+            <line key={`h-${ratio}`} x1={PADDING.left} x2={PADDING.left + PLOT_WIDTH} y1={PADDING.top + ratio * PLOT_HEIGHT} y2={PADDING.top + ratio * PLOT_HEIGHT} stroke="#294161" strokeDasharray="3 4" />
           ))}
 
           {xTicks.map((value) => (
             <g key={value}>
-              <line
-                x1={xScale(value)}
-                x2={xScale(value)}
-                y1={PADDING.top}
-                y2={PADDING.top + PLOT_HEIGHT}
-                stroke="#294161"
-                strokeDasharray="3 4"
-              />
-              <text x={xScale(value)} y={HEIGHT - 16} fill="#9eb5d2" fontSize="10" textAnchor="middle">
-                {value.toFixed(2)}
-              </text>
+              <line x1={xScale(value)} x2={xScale(value)} y1={PADDING.top} y2={PADDING.top + PLOT_HEIGHT} stroke="#294161" strokeDasharray="3 4" />
+              <text x={xScale(value)} y={HEIGHT - 16} fill="#9eb5d2" fontSize="10" textAnchor="middle">{value.toFixed(2)}</text>
             </g>
           ))}
 
           {tonnageTicks.map((value) => (
-            <text key={value} x={PADDING.left - 12} y={tonnageScale(value) + 4} fill="#7dd3fc" fontSize="10" textAnchor="end">
-              {Math.round(value)}
-            </text>
+            <text key={value} x={PADDING.left - 12} y={tonnageScale(value) + 4} fill="#7dd3fc" fontSize="10" textAnchor="end">{Math.round(value)}</text>
           ))}
 
           {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
-            <text key={ratio} x={PADDING.left + PLOT_WIDTH + 12} y={PADDING.top + PLOT_HEIGHT - ratio * PLOT_HEIGHT + 4} fill="#5eead4" fontSize="10">
-              ${Math.round(maxNpv * ratio)}M
-            </text>
+            <text key={ratio} x={PADDING.left + PLOT_WIDTH + 12} y={PADDING.top + PLOT_HEIGHT - ratio * PLOT_HEIGHT + 4} fill="#5eead4" fontSize="10">${Math.round(maxNpv * ratio)}M</text>
           ))}
 
           <path d={paths.npvArea} fill="url(#npv-area)" />
@@ -201,26 +206,10 @@ export default function EconomicCurve({ results }: EconomicCurveProps) {
           <path d={paths.npv} fill="none" stroke="#2dd4bf" strokeWidth="4" filter="url(#curve-glow)" />
 
           {Number.isFinite(results.breakeven) && results.breakeven <= maxCutoff && (
-            <line
-              x1={xScale(results.breakeven)}
-              x2={xScale(results.breakeven)}
-              y1={PADDING.top}
-              y2={PADDING.top + PLOT_HEIGHT}
-              stroke="#facc15"
-              strokeWidth="2"
-              strokeDasharray="6 4"
-            />
+            <line x1={xScale(results.breakeven)} x2={xScale(results.breakeven)} y1={PADDING.top} y2={PADDING.top + PLOT_HEIGHT} stroke="#facc15" strokeWidth="2" strokeDasharray="6 4" />
           )}
 
-          <line
-            x1={xScale(activePoint.cutoff)}
-            x2={xScale(activePoint.cutoff)}
-            y1={PADDING.top}
-            y2={PADDING.top + PLOT_HEIGHT}
-            stroke="#5eead4"
-            strokeWidth="2.5"
-            opacity={hoveredPoint ? 1 : 0.72}
-          />
+          <line x1={xScale(activePoint.cutoff)} x2={xScale(activePoint.cutoff)} y1={PADDING.top} y2={PADDING.top + PLOT_HEIGHT} stroke="#5eead4" strokeWidth="2.5" opacity={hoveredPoint ? 1 : 0.72} />
 
           <circle cx={xScale(activePoint.cutoff)} cy={tonnageScale(activePoint.tonnage)} r="7" fill="#67c8ff" stroke="white" strokeWidth="2" />
           <circle cx={xScale(activePoint.cutoff)} cy={gradeScale(activePoint.averageGrade)} r="7" fill="#fde047" stroke="white" strokeWidth="2" />
@@ -228,9 +217,7 @@ export default function EconomicCurve({ results }: EconomicCurveProps) {
 
           <line x1={PADDING.left} x2={PADDING.left + PLOT_WIDTH} y1={PADDING.top + PLOT_HEIGHT} y2={PADDING.top + PLOT_HEIGHT} stroke="#a8bdd7" strokeWidth="2" />
           <line x1={PADDING.left} x2={PADDING.left} y1={PADDING.top} y2={PADDING.top + PLOT_HEIGHT} stroke="#a8bdd7" strokeWidth="2" />
-          <text x={PADDING.left + PLOT_WIDTH / 2} y={HEIGHT - 2} fill="#e2e8f0" fontSize="12" fontWeight="700" textAnchor="middle">
-            LEY DE CORTE (% Cu)
-          </text>
+          <text x={PADDING.left + PLOT_WIDTH / 2} y={HEIGHT - 2} fill="#e2e8f0" fontSize="12" fontWeight="700" textAnchor="middle">LEY DE CORTE (% Cu)</text>
         </svg>
       </div>
     </div>
