@@ -21,6 +21,7 @@ import {
 import './styles/app-shell.css';
 import EconomicControlDeck from './components/EconomicControlDeck';
 import EconomicCurve from './components/EconomicCurve';
+import { Metric, Panel, ProgressMetric, Slider } from './components/DashboardPrimitives';
 import PitWorkspace from './components/PitWorkspace';
 import {
   calculateOptimization,
@@ -119,19 +120,13 @@ export default function App() {
     }
   };
 
-  const changeEconomicInput = (
-    field: EconomicInputKey,
-    value: number,
-  ) => {
+  const changeEconomicInput = (field: EconomicInputKey, value: number) => {
     setEconomicInputs((current) => ({ ...current, [field]: value }));
     setSavedAt(null);
   };
 
   const saveScenario = () => {
-    window.localStorage.setItem(
-      ECONOMIC_STORAGE_KEY,
-      JSON.stringify(economicInputs),
-    );
+    window.localStorage.setItem(ECONOMIC_STORAGE_KEY, JSON.stringify(economicInputs));
     setSavedAt(new Date());
   };
 
@@ -148,8 +143,7 @@ export default function App() {
     stripRatio: economicInputs.stripRatio,
   };
 
-  const maxRecoverableResource =
-    economicInputs.maxResourceMt * economicInputs.mineRecovery;
+  const maxRecoverableResource = economicInputs.maxResourceMt * economicInputs.mineRecovery;
   const maximumMetalReference =
     maxRecoverableResource *
     (Math.max(economicInputs.baseGradePercent, results.bestScenario.grade) / 100) *
@@ -208,45 +202,14 @@ export default function App() {
           </Panel>
 
           <Panel icon={<Database size={13} />} title="RESOURCES">
-            <ProgressMetric
-              label="ORE TONNAGE"
-              value={`${results.bestScenario.tonnage.toFixed(0)} Mt`}
-              progress={results.bestScenario.tonnage / Math.max(maxRecoverableResource, 1)}
-              tone="cyan"
-            />
-            <ProgressMetric
-              label="HEAD GRADE"
-              value={`${results.bestScenario.grade.toFixed(3)} %`}
-              progress={results.bestScenario.grade / Math.max(results.maximumEvaluatedCutoff, 0.01)}
-              tone="yellow"
-            />
-            <ProgressMetric
-              label="METAL CONTENT"
-              value={`${results.bestScenario.metal.toFixed(2)} Mt`}
-              progress={results.bestScenario.metal / Math.max(maximumMetalReference, 0.01)}
-              tone="green"
-            />
+            <ProgressMetric label="ORE TONNAGE" value={`${results.bestScenario.tonnage.toFixed(0)} Mt`} progress={results.bestScenario.tonnage / Math.max(maxRecoverableResource, 1)} tone="cyan" />
+            <ProgressMetric label="HEAD GRADE" value={`${results.bestScenario.grade.toFixed(3)} %`} progress={results.bestScenario.grade / Math.max(results.maximumEvaluatedCutoff, 0.01)} tone="yellow" />
+            <ProgressMetric label="METAL CONTENT" value={`${results.bestScenario.metal.toFixed(2)} Mt`} progress={results.bestScenario.metal / Math.max(maximumMetalReference, 0.01)} tone="green" />
           </Panel>
 
           <Panel icon={<Gauge size={13} />} title="RECOVERY RATES" grow>
-            <Slider
-              label="REC. MINADO"
-              value={economicInputs.mineRecovery}
-              min={0.85}
-              max={1}
-              step={0.01}
-              display={`${(economicInputs.mineRecovery * 100).toFixed(0)} %`}
-              onChange={(value) => changeEconomicInput('mineRecovery', value)}
-            />
-            <Slider
-              label="REC. METALÚRGICA"
-              value={economicInputs.plantRecovery}
-              min={0.75}
-              max={0.95}
-              step={0.01}
-              display={`${(economicInputs.plantRecovery * 100).toFixed(0)} %`}
-              onChange={(value) => changeEconomicInput('plantRecovery', value)}
-            />
+            <Slider label="REC. MINADO" value={economicInputs.mineRecovery} min={0.85} max={1} step={0.01} display={`${(economicInputs.mineRecovery * 100).toFixed(0)} %`} onChange={(value) => changeEconomicInput('mineRecovery', value)} />
+            <Slider label="REC. METALÚRGICA" value={economicInputs.plantRecovery} min={0.75} max={0.95} step={0.01} display={`${(economicInputs.plantRecovery * 100).toFixed(0)} %`} onChange={(value) => changeEconomicInput('plantRecovery', value)} />
           </Panel>
         </aside>
 
@@ -266,28 +229,14 @@ export default function App() {
               <span><Layers3 size={14} /> PIT DATAMINE — GEOMETRÍA, EVOLUCIÓN Y VALOR</span>
               <small>{geometry?.validation.status === 'valid' ? 'DATOS VALIDADOS' : 'LECTURA CONTROLADA'}</small>
             </div>
-            <PitWorkspace
-              geometry={geometry}
-              loading={loadingGeometry}
-              error={geometryError}
-              economicMetrics={economicMetrics}
-              onRetry={() => setReloadKey((value) => value + 1)}
-            />
+            <PitWorkspace geometry={geometry} loading={loadingGeometry} error={geometryError} economicMetrics={economicMetrics} onRetry={() => setReloadKey((value) => value + 1)} />
           </section>
         </section>
 
         <aside className="right-rail">
           <Panel icon={<Settings2 size={13} />} title="ECONOMIC SCENARIO" grow>
-            <Metric
-              label="METAL PRICE"
-              value={`$${economicInputs.metalPriceUsdPerTonne.toLocaleString()} /t`}
-              tone="cyan"
-            />
-            <Metric
-              label="MAX RESOURCE"
-              value={`${economicInputs.maxResourceMt.toFixed(0)} Mt`}
-              tone="blue"
-            />
+            <Metric label="METAL PRICE" value={`$${economicInputs.metalPriceUsdPerTonne.toLocaleString()} /t`} tone="cyan" />
+            <Metric label="MAX RESOURCE" value={`${economicInputs.maxResourceMt.toFixed(0)} Mt`} tone="blue" />
             <div className="metric-pair">
               <Metric label="WACC" value={`${(economicInputs.wacc * 100).toFixed(1)} %`} tone="yellow" />
               <Metric label="PRODUCTION" value={`${economicInputs.annualProductionMt.toFixed(0)} Mt/a`} tone="green" />
@@ -340,41 +289,5 @@ export default function App() {
         onReset={resetScenario}
       />
     </div>
-  );
-}
-
-function Panel({ icon, title, children, grow = false }: { icon: React.ReactNode; title: string; children: React.ReactNode; grow?: boolean }) {
-  return (
-    <section className={`rail-panel ${grow ? 'grow' : ''}`}>
-      <div className="rail-title"><span>{icon}{title}</span></div>
-      <div className="rail-content">{children}</div>
-    </section>
-  );
-}
-
-function Metric({ label, value, tone = 'neutral' }: { label: string; value: string; tone?: string }) {
-  return (
-    <div className={`metric tone-${tone}`}>
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-function ProgressMetric({ label, value, progress, tone }: { label: string; value: string; progress: number; tone: string }) {
-  return (
-    <div className={`progress-metric tone-${tone}`}>
-      <div><span>{label}</span><strong>{value}</strong></div>
-      <i><b style={{ width: `${Math.min(Math.max(progress, 0), 1) * 100}%` }} /></i>
-    </div>
-  );
-}
-
-function Slider({ label, value, min, max, step, display, onChange }: { label: string; value: number; min: number; max: number; step: number; display: string; onChange: (value: number) => void }) {
-  return (
-    <label className="slider-field">
-      <span><b>{label}</b><strong>{display}</strong></span>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} />
-    </label>
   );
 }
