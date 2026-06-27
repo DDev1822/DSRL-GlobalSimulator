@@ -110,7 +110,7 @@ export interface StockpileBlendingReport {
   };
   methodology: {
     sequencePolicy: 'strict-top-down';
-    blendingPolicy: 'target-seeking-greedy';
+    blendingPolicy: 'target-seeking-complementary-lots';
     stockpileLotIdentityPreserved: true;
     partialBenchAllocationAllowed: true;
     partialLotReclaimAllowed: true;
@@ -192,14 +192,16 @@ function processMarginPerTonne(bench: BenchEconomicValueEntry): number {
     : 0;
 }
 
-function cloneLots(lots: MaterialLot[]): MaterialLot[] {
-  return lots.map((lot) => ({ ...lot }));
+function take(lot: MaterialLot, massMt: number): MaterialLot {
+  const amount = Math.min(lot.massMt, massMt);
+  lot.massMt -= amount;
+  return { ...lot, massMt: amount };
 }
 
-function takeFromLot(lot: MaterialLot, massMt: number): MaterialLot {
-  const taken = Math.min(massMt, lot.massMt);
-  lot.massMt -= taken;
-  return { ...lot, massMt: taken };
+function availableMass(lot: MaterialLot, reclaimed: number, reclaimCapacity: number): number {
+  return lot.source === 'fresh'
+    ? lot.massMt
+    : Math.min(lot.massMt, Math.max(reclaimCapacity - reclaimed, 0));
 }
 
 function selectPlantFeed(
@@ -215,42 +217,61 @@ function selectPlantFeed(
   let feedMetal = 0;
   let reclaimed = 0;
 
+  const add = (lot: MaterialLot, amount: number) => {
+    const selected = take(lot, amount);
+    feed.push(selected);
+    feedMass += selected.massMt;
+    feedMetal += selected.massMt * selected.gradeCuPercent;
+    if (selected.source === 'stockpile') reclaimed += selected.massMt;
+  };
+
   while (feedMass < plantCapacityMt - EPS) {
-    const available = candidates.filter((lot) =>
-      lot.massMt > EPS &&
-      (lot.source === 'fresh' || reclaimed < reclaimCapacityMt - EPS),
-    );
+    const plantLeft = plantCapacityMt - feedMass;
+    const available = candidates.filter((lot) => availableMass(lot, reclaimed, reclaimCapacityMt) > EPS);
     if (!available.length) break;
 
+    const exact = available.find((lot) => Math.abs(lot.gradeCuPercent - targetCuPercent) <= EPS);
+    if (exact) {
+      add(exact, Math.min(plantLeft, availableMass(exact, reclaimed, reclaimCapacityMt)));
+      continue;
+    }
+
+    const highs = available.filter((lot) => lot.gradeCuPercent > targetCuPercent).sort((a, b) => a.gradeCuPercent - b.gradeCuPercent);
+    const lows = available.filter((lot) => lot.gradeCuPercent < targetCuPercent).sort((a, b) => b.gradeCuPercent - a.gradeCuPercent);
+    if (highs.length && lows.length) {
+      const high = highs[0];
+      const low = lows[0];
+      const highShare = (targetCuPercent - low.gradeCuPercent) / (high.gradeCuPercent - low.gradeCuPercent);
+      const lowShare = 1 - highShare;
+      const highAvailable = availableMass(high, reclaimed, reclaimCapacityMt);
+      const lowAvailable = availableMass(low, reclaimed, reclaimCapacityMt);
+      const total = Math.min(
+        plantLeft,
+        highShare > EPS ? highAvailable / highShare : Number.POSITIVE_INFINITY,
+        lowShare > EPS ? lowAvailable / lowShare : Number.POSITIVE_INFINITY,
+      );
+      if (total > EPS) {
+        add(high, total * highShare);
+        add(low, total * lowShare);
+        continue;
+      }
+    }
+
     const currentGrade = feedMass > EPS ? feedMetal / feedMass : targetCuPercent;
-    const desiredDirection = currentGrade < targetCuPercent ? 'high' : currentGrade > targetCuPercent ? 'low' : 'closest';
     available.sort((a, b) => {
-      if (desiredDirection === 'high') return b.gradeCuPercent - a.gradeCuPercent;
-      if (desiredDirection === 'low') return a.gradeCuPercent - b.gradeCuPercent;
-      return Math.abs(a.gradeCuPercent - targetCuPercent) - Math.abs(b.gradeCuPercent - targetCuPercent);
+      const scoreA = Math.abs(((feedMetal + a.gradeCuPercent * Math.min(plantLeft, availableMass(a, reclaimed, reclaimCapacityMt))) / (feedMass + Math.min(plantLeft, availableMass(a, reclaimed, reclaimCapacityMt)))) - targetCuPercent);
+      const scoreB = Math.abs(((feedMetal + b.gradeCuPercent * Math.min(plantLeft, availableMass(b, reclaimed, reclaimCapacityMt))) / (feedMass + Math.min(plantLeft, availableMass(b, reclaimed, reclaimCapacityMt)))) - targetCuPercent);
+      return scoreA - scoreB || Math.abs(a.gradeCuPercent - currentGrade) - Math.abs(b.gradeCuPercent - currentGrade);
     });
     const lot = available[0];
-    const plantLeft = plantCapacityMt - feedMass;
-    const reclaimLeft = lot.source === 'stockpile' ? reclaimCapacityMt - reclaimed : Number.POSITIVE_INFINITY;
-    let amount = Math.min(lot.massMt, plantLeft, reclaimLeft);
-
-    if (feedMass > EPS && Math.abs(lot.gradeCuPercent - targetCuPercent) > EPS) {
-      const exact = (targetCuPercent * feedMass - feedMetal) / (lot.gradeCuPercent - targetCuPercent);
-      if (exact > EPS) amount = Math.min(amount, exact);
-    }
-    if (amount <= EPS) amount = Math.min(lot.massMt, plantLeft, reclaimLeft);
-    if (amount <= EPS) break;
-
-    const taken = takeFromLot(lot, amount);
-    feed.push(taken);
-    feedMass += taken.massMt;
-    feedMetal += taken.massMt * taken.gradeCuPercent;
-    if (taken.source === 'stockpile') reclaimed += taken.massMt;
+    add(lot, Math.min(plantLeft, availableMass(lot, reclaimed, reclaimCapacityMt)));
   }
 
-  const remainingFresh = candidates.filter((lot) => lot.source === 'fresh' && lot.massMt > EPS);
-  const remainingStockpile = candidates.filter((lot) => lot.source === 'stockpile' && lot.massMt > EPS);
-  return { feed, remainingFresh, remainingStockpile };
+  return {
+    feed,
+    remainingFresh: candidates.filter((lot) => lot.source === 'fresh' && lot.massMt > EPS),
+    remainingStockpile: candidates.filter((lot) => lot.source === 'stockpile' && lot.massMt > EPS),
+  };
 }
 
 function runAllocation(
@@ -293,15 +314,14 @@ function runAllocation(
         processLeft > EPS ? processStorageLeft / processLeft : Number.POSITIVE_INFINITY,
       );
       if (!Number.isFinite(share) || share <= EPS) break;
-      const fractionOfBench = item.fraction * share;
-      const mass = bench.metrics.massMt * fractionOfBench;
-      const process = bench.metrics.dsrlProcessMassMt * fractionOfBench;
-      const waste = Math.max(mass - process, 0);
+      const fraction = item.fraction * share;
+      const mass = bench.metrics.massMt * fraction;
+      const process = bench.metrics.dsrlProcessMassMt * fraction;
       startBenchId ??= bench.benchId;
       endBenchId = bench.benchId;
       minedMass += mass;
       freshProcess += process;
-      nonProcess += waste;
+      nonProcess += Math.max(mass - process, 0);
       mineLeft -= mass;
       processStorageLeft -= process;
       if (process > EPS) fresh.push({
@@ -313,7 +333,7 @@ function runAllocation(
         gradeCuPercent: processGrade(bench),
         marginUsdPerTonne: processMarginPerTonne(bench),
       });
-      item.fraction = Math.max(item.fraction - fractionOfBench, 0);
+      item.fraction = Math.max(item.fraction - fraction, 0);
       if (item.fraction <= EPS) { item.fraction = 0; index += 1; }
     }
 
@@ -334,20 +354,16 @@ function runAllocation(
     const closingMass = stockpile.reduce((sum, lot) => sum + lot.massMt, 0);
     const closingGrade = weightedGrade(stockpile);
     const stockpileAdded = blend.remainingFresh.reduce((sum, lot) => sum + lot.massMt, 0);
-    const mineFull = close(minedMass, mineCap);
-    const plantFull = close(feedMass, plantCap);
-    const stockpileFull = close(closingMass, inputs.stockpileCapacityMt);
-    const reclaimFull = close(reclaimed, inputs.reclaimCapacityMtPerPeriod);
     const exhausted = index >= remainders.length && closingMass <= EPS;
     const bottleneck: StockpileBottleneck = exhausted
       ? 'inventory-exhausted'
-      : stockpileFull
+      : close(closingMass, inputs.stockpileCapacityMt)
         ? 'stockpile'
-        : plantFull
+        : close(feedMass, plantCap)
           ? 'plant'
-          : mineFull
+          : close(minedMass, mineCap)
             ? 'mine'
-            : reclaimFull
+            : close(reclaimed, inputs.reclaimCapacityMtPerPeriod)
               ? 'reclaim'
               : 'none';
 
@@ -466,7 +482,7 @@ export function buildBlockBenchStockpileBlending(
     },
     methodology: {
       sequencePolicy: 'strict-top-down',
-      blendingPolicy: 'target-seeking-greedy',
+      blendingPolicy: 'target-seeking-complementary-lots',
       stockpileLotIdentityPreserved: true,
       partialBenchAllocationAllowed: true,
       partialLotReclaimAllowed: true,
@@ -482,7 +498,7 @@ export function buildBlockBenchStockpileBlending(
     },
     notes: [
       'El stockpile conserva masa, ley y densidad de margen por lote.',
-      'El blending es determinista y busca aproximarse a una ley objetivo; no es optimización global.',
+      'El blending prioriza lotes complementarios alto/bajo y luego completa por cercanía al objetivo.',
       'No se modelan pérdidas, oxidación ni recuperación variable por permanencia.',
       'El margen operativo descontado no es VAN.',
       'El resultado no es un plan minero ejecutable ni una declaración de reservas.',
