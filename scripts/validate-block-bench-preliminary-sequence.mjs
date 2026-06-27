@@ -38,6 +38,7 @@ try {
 
   const parser = await import(pathToFileURL(join(temp, 'utils/blockModelParser.mjs')).href);
   const economics = await import(pathToFileURL(join(temp, 'engine/economicModel.mjs')).href);
+  const benchValue = await import(pathToFileURL(join(temp, 'engine/blockBenchEconomicValue.mjs')).href);
   const engine = await import(pathToFileURL(join(temp, 'engine/blockBenchPreliminarySequence.mjs')).href);
   const economic = economics.createEconomicInputs();
 
@@ -45,9 +46,10 @@ try {
     const dataset = parser.parseBlockModelCsv(readFileSync(primaryPath, 'utf8'), { sourceName: 'simmodPL.csv', sourcePath: primaryPath });
     const config = { periodCount: 12, mineCapacityMtPerPeriod: 12, plantCapacityMtPerPeriod: 8, mineUtilization: 1, plantUtilization: 1 };
     const locked = engine.buildBlockBenchPreliminarySequence(dataset, 6, 'cumulative', 10, economic, 'unconfirmed', 'full-cost', config);
+    const lockedBenchValue = benchValue.buildBlockBenchEconomicValue(dataset, 6, 'cumulative', 10, economic, 'unconfirmed', 'full-cost');
     check(locked.valueBasis === 'source-observed' && locked.scheduledDsrlMarginUsdM === null, 'modo fuente bloqueado');
-    check(locked.sourceBenchValueReport.total.blockCount === 34845, 'F6 conserva 34,845 bloques');
-    check(close(locked.sourceBenchValueReport.total.massMt, 54.89266375078649), 'F6 conserva 54.892664 Mt');
+    check(lockedBenchValue.total.blockCount === 34845, 'F6 conserva 34,845 bloques');
+    check(close(lockedBenchValue.total.massMt, 54.89266375078649), 'F6 conserva 54.892664 Mt');
 
     let combinations = 0;
     let allClose = true;
