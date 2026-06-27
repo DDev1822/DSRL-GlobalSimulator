@@ -146,3 +146,7 @@ npm run dev
 - [ ] evidencia visual revisada;
 - [ ] PR marcado como Ready for review;
 - [ ] no fusionar todavía a `main` mientras continúe la cadena de PR apilados.
+
+## Estado
+
+**IMPLEMENTACIÓN COMPLETA · VALIDACIÓN LOCAL PENDIENTE**
