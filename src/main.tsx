@@ -11,6 +11,7 @@ import BlockBenchInventoryPanel from './components/BlockBenchInventoryPanel';
 import BlockEconomicClassificationPanel from './components/BlockEconomicClassificationPanel';
 import BlockBenchEconomicValuePanel from './components/BlockBenchEconomicValuePanel';
 import BlockBenchPreliminarySequencePanel from './components/BlockBenchPreliminarySequencePanel';
+import BlockBenchStockpileBlendingPanel from './components/BlockBenchStockpileBlendingPanel';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -26,5 +27,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BlockEconomicClassificationPanel />
     <BlockBenchEconomicValuePanel />
     <BlockBenchPreliminarySequencePanel />
+    <BlockBenchStockpileBlendingPanel />
   </React.StrictMode>,
 );
