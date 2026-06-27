@@ -39,13 +39,7 @@ const LAYERS: Array<{ value: ViewerColorMode; label: string; note: string }> = [
   { value: 'strip_ratio', label: 'Strip ratio', note: 'Proxy visual condicionado por profundidad y relación estéril/mineral.' },
 ];
 
-export default function PitWorkspace({
-  geometry,
-  loading,
-  error,
-  economicMetrics,
-  onRetry,
-}: PitWorkspaceProps) {
+export default function PitWorkspace({ geometry, loading, error, economicMetrics, onRetry }: PitWorkspaceProps) {
   const [catalog, setCatalog] = useState<DatamineGeometryCatalog | null>(null);
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState<string | null>(null);
@@ -87,9 +81,7 @@ export default function PitWorkspace({
   }, [catalogReloadKey]);
 
   const availablePhases = useMemo(() => {
-    if (catalog && catalog.availablePhases.length > 0) {
-      return catalog.availablePhases;
-    }
+    if (catalog && catalog.availablePhases.length > 0) return catalog.availablePhases;
     const fallbackPhase = geometry?.dataSource.phase;
     return fallbackPhase ? [fallbackPhase] : [6];
   }, [catalog, geometry]);
@@ -115,9 +107,7 @@ export default function PitWorkspace({
     return () => window.clearInterval(timer);
   }, [playing, speed, availablePhases]);
 
-  const activeGeometry =
-    catalog?.phases[phaseStep] ??
-    (geometry?.dataSource.phase === phaseStep ? geometry : geometry);
+  const activeGeometry = catalog?.phases[phaseStep] ?? (geometry?.dataSource.phase === phaseStep ? geometry : geometry);
   const topography = catalog?.topography ?? null;
   const topographyAvailable = Boolean(topography);
   const realSequence = availablePhases.length > 1;
@@ -148,10 +138,7 @@ export default function PitWorkspace({
 
   const moveRelative = (direction: -1 | 1) => {
     const currentIndex = availablePhases.indexOf(phaseStep);
-    const nextIndex = Math.min(
-      Math.max(currentIndex + direction, 0),
-      availablePhases.length - 1,
-    );
+    const nextIndex = Math.min(Math.max(currentIndex + direction, 0), availablePhases.length - 1);
     movePhase(availablePhases[nextIndex]);
   };
 
@@ -190,15 +177,8 @@ export default function PitWorkspace({
         </div>
 
         <label className="field-label" htmlFor="economic-layer">CAPA DE VISUALIZACIÓN</label>
-        <select
-          id="economic-layer"
-          className="field-select"
-          value={colorMode}
-          onChange={(event) => setColorMode(event.target.value as ViewerColorMode)}
-        >
-          {LAYERS.map((item) => (
-            <option key={item.value} value={item.value}>{item.label}</option>
-          ))}
+        <select id="economic-layer" className="field-select" value={colorMode} onChange={(event) => setColorMode(event.target.value as ViewerColorMode)}>
+          {LAYERS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
         </select>
         <div className="layer-note">{layer.note}</div>
 
@@ -212,26 +192,15 @@ export default function PitWorkspace({
         </div>
 
         <div className="viewer-toggle-row">
-          <button
-            type="button"
-            className={`compact-button ${wireframe ? 'active' : ''}`}
-            onClick={() => setWireframe((value) => !value)}
-          >
+          <button type="button" className={`compact-button ${wireframe ? 'active' : ''}`} onClick={() => setWireframe((value) => !value)} aria-pressed={wireframe}>
             <Layers size={12} /> {wireframe ? 'WIREFRAME ACTIVO' : 'WIREFRAME'}
           </button>
-          <button
-            type="button"
-            className={`compact-button ${showTopography ? 'active' : ''}`}
-            onClick={() => setShowTopography((value) => !value)}
-            disabled={!topographyAvailable}
-          >
+          <button type="button" className={`compact-button ${showTopography ? 'active' : ''}`} onClick={() => setShowTopography((value) => !value)} disabled={!topographyAvailable} aria-pressed={showTopography && topographyAvailable}>
             <Map size={12} /> {showTopography ? 'TOPO ACTIVA' : 'TOPOGRAFÍA'}
           </button>
         </div>
 
-        {catalogError && activeGeometry && (
-          <p className="layer-note">Advertencia del catálogo: {catalogError}</p>
-        )}
+        {catalogError && activeGeometry && <p className="layer-note">Advertencia del catálogo: {catalogError}</p>}
 
         <div className="hover-readout">
           <div className="hover-title">LECTURA DEL CURSOR</div>
@@ -243,9 +212,7 @@ export default function PitWorkspace({
               <div><span>Norte</span><strong>{hovered.northing.toFixed(2)}</strong></div>
               <div><span>Elevación</span><strong>{hovered.elevation.toFixed(2)} m</strong></div>
             </>
-          ) : (
-            <p>Pasa el cursor sobre el pit o la topografía para consultar la geometría.</p>
-          )}
+          ) : <p>Pasa el cursor sobre el pit o la topografía para consultar la geometría.</p>}
         </div>
       </aside>
 
@@ -261,40 +228,51 @@ export default function PitWorkspace({
             </div>
           )}
           {!displayLoading && !displayError && activeGeometry && (
-            <DataminePhaseViewer
-              key={activeGeometry.dataSource.geometryId ?? phaseStep}
-              geometryData={activeGeometry}
-              topographyData={topography}
-              showTopography={showTopography && topographyAvailable}
-              colorMode={colorMode}
-              phaseStep={phaseStep}
-              economicMetrics={economicMetrics}
-              showWireframe={wireframe}
-              onTriangleHover={setHovered}
-            />
+            <>
+              <DataminePhaseViewer
+                key={activeGeometry.dataSource.geometryId ?? phaseStep}
+                geometryData={activeGeometry}
+                topographyData={topography}
+                showTopography={showTopography && topographyAvailable}
+                colorMode={colorMode}
+                phaseStep={phaseStep}
+                economicMetrics={economicMetrics}
+                showWireframe={wireframe}
+                onTriangleHover={setHovered}
+              />
+              <div className="viewer-help-overlay" aria-hidden="true">
+                <span>Drag: rotar</span>
+                <span>Scroll: zoom</span>
+                <span>Right drag: pan</span>
+              </div>
+              <div className="viewer-layer-chip" aria-hidden="true">
+                <b>{layer.label}</b>
+                <span>{showTopography && topographyAvailable ? 'TOPO ON' : 'TOPO OFF'} · {wireframe ? 'WIREFRAME' : 'SOLID'}</span>
+              </div>
+            </>
           )}
         </div>
 
         <div className="phase-toolbar">
-          <button type="button" onClick={() => movePhase(availablePhases[0])} title="Primera fase real"><RotateCcw size={14} /></button>
-          <button type="button" onClick={() => moveRelative(-1)} title="Fase anterior"><ChevronLeft size={14} /></button>
+          <button type="button" onClick={() => movePhase(availablePhases[0])} title="Primera fase real" aria-label="Ir a la primera fase real"><RotateCcw size={14} /></button>
+          <button type="button" onClick={() => moveRelative(-1)} title="Fase anterior" aria-label="Ir a la fase anterior"><ChevronLeft size={14} /></button>
           <button
             type="button"
             className={playing ? 'active' : ''}
             onClick={() => {
-              if (phaseStep === availablePhases.at(-1)) {
-                setPhaseStep(availablePhases[0]);
-              }
+              if (phaseStep === availablePhases.at(-1)) setPhaseStep(availablePhases[0]);
               setPlaying((value) => !value);
             }}
             title={playing ? 'Pausar' : 'Reproducir fases reales'}
+            aria-label={playing ? 'Pausar reproducción de fases reales' : 'Reproducir fases reales'}
+            aria-pressed={playing}
             disabled={availablePhases.length < 2}
           >
             {playing ? <Pause size={14} /> : <Play size={14} />}
           </button>
-          <button type="button" onClick={() => moveRelative(1)} title="Fase siguiente"><ChevronRight size={14} /></button>
+          <button type="button" onClick={() => moveRelative(1)} title="Fase siguiente" aria-label="Ir a la fase siguiente"><ChevronRight size={14} /></button>
 
-          <div className="phase-buttons">
+          <div className="phase-buttons" aria-label="Fases Datamine disponibles">
             {[1, 2, 3, 4, 5, 6].map((phase) => (
               <button
                 key={phase}
@@ -303,27 +281,17 @@ export default function PitWorkspace({
                 onClick={() => movePhase(phase)}
                 disabled={!availablePhases.includes(phase)}
                 title={availablePhases.includes(phase) ? `Cargar Pit F${phase}` : `Pit F${phase} no disponible`}
+                aria-label={availablePhases.includes(phase) ? `Cargar Pit F${phase}` : `Pit F${phase} no disponible`}
+                aria-pressed={phase === phaseStep}
               >
                 F{phase}
               </button>
             ))}
           </div>
 
-          <input
-            aria-label="Selección de fase Datamine real"
-            type="range"
-            min={availablePhases[0]}
-            max={availablePhases.at(-1)}
-            step="1"
-            value={phaseStep}
-            onChange={(event) => movePhase(Number(event.target.value))}
-          />
+          <input aria-label="Selección de fase Datamine real" type="range" min={availablePhases[0]} max={availablePhases.at(-1)} step="1" value={phaseStep} onChange={(event) => movePhase(Number(event.target.value))} />
 
-          <select
-            aria-label="Velocidad de reproducción"
-            value={speed}
-            onChange={(event) => setSpeed(Number(event.target.value))}
-          >
+          <select aria-label="Velocidad de reproducción" value={speed} onChange={(event) => setSpeed(Number(event.target.value))}>
             <option value={1400}>0.7×</option>
             <option value={900}>1×</option>
             <option value={550}>1.6×</option>
