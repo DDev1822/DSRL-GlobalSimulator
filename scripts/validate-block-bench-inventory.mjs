@@ -5,6 +5,8 @@ import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
 const failures = [];
+const invalidCaseToken = 'invalid';
+void invalidCaseToken;
 let passedChecks = 0;
 function check(condition, message) {
   if (condition) {
