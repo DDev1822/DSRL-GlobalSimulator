@@ -15,6 +15,7 @@ import BlockBenchStockpileBlendingPanel from './components/BlockBenchStockpileBl
 import BlockBenchRouteRecoveryPanel from './components/BlockBenchRouteRecoveryPanel';
 import IntegratedRouteEconomicsPanel from './components/IntegratedRouteEconomicsPanel';
 import PreliminaryHaulageLogisticsPanel from './components/PreliminaryHaulageLogisticsPanel';
+import RoadConditionEconomicImpactPanel from './components/RoadConditionEconomicImpactPanel';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -34,5 +35,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BlockBenchRouteRecoveryPanel />
     <IntegratedRouteEconomicsPanel />
     <PreliminaryHaulageLogisticsPanel />
+    <RoadConditionEconomicImpactPanel />
   </React.StrictMode>,
 );
