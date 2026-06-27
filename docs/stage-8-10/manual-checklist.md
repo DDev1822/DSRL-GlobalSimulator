@@ -54,16 +54,16 @@
 - [x] periodos con margen negativo;
 - [x] sensibilidad de precio y costo.
 
-## Reconciliaciones implementadas
+## Reconciliaciones
 
-- [x] masa por ruta;
-- [x] cobre contenido;
+- [x] masa por ruta cierra;
+- [x] cobre contenido cierra;
 - [x] cobre recuperado no supera contenido;
 - [x] metal pagable no supera recuperado;
-- [x] ingreso bruto;
-- [x] costos;
+- [x] ingreso bruto cierra;
+- [x] costos cierran;
 - [x] margen = ingreso - costos;
-- [x] valor realizado + pendiente;
+- [x] valor realizado + pendiente cierra;
 - [x] valor descontado no supera nominal con tasa positiva;
 - [x] identidad de ruta preservada;
 - [x] destinos desconocidos reportados;
@@ -88,8 +88,8 @@
 - [x] tabla por periodo;
 - [x] reconciliaciones visibles;
 - [x] guardas metodológicas visibles;
-- [ ] sin superposición con dock inferior;
-- [ ] responsive validado.
+- [x] sin superposición con dock inferior;
+- [x] responsive validado.
 
 ## Validación técnica
 
@@ -107,21 +107,21 @@ npm run typecheck
 npm run build
 ```
 
-- [ ] cadena heredada en PASS;
-- [ ] auditoría 8.10 en PASS;
-- [ ] validador 8.10 en PASS;
-- [ ] 48 combinaciones reales;
-- [ ] F6 conserva 34,845 bloques y 54.892664 Mt;
-- [ ] Mill validado;
-- [ ] Leach validado;
-- [ ] recuperación 0% y 100%;
-- [ ] pagabilidad 0% y 100%;
-- [ ] precio 0;
-- [ ] costo alto con margen negativo;
-- [ ] tasa de descuento 0%;
-- [ ] tasa de descuento positiva;
-- [ ] cierre realizado + pendiente;
-- [ ] TypeScript y build en PASS.
+- [x] cadena heredada en PASS;
+- [x] auditoría 8.10 en PASS;
+- [x] validador 8.10 en PASS;
+- [x] 48 combinaciones reales;
+- [x] F6 conserva 34,845 bloques y 54.892664 Mt;
+- [x] Mill validado;
+- [x] Leach validado;
+- [x] recuperación 0% y 100%;
+- [x] pagabilidad 0% y 100%;
+- [x] precio 0;
+- [x] costo alto con margen negativo;
+- [x] tasa de descuento 0%;
+- [x] tasa de descuento positiva;
+- [x] cierre realizado + pendiente;
+- [x] TypeScript y build en PASS.
 
 ## Validación visual
 
@@ -129,24 +129,24 @@ npm run build
 npm run dev
 ```
 
-- [ ] panel abre, cierra y recarga;
-- [ ] controles recalculan sin congelar la app;
-- [ ] Mill y Leach se distinguen claramente;
-- [ ] valor realizado y pendiente visibles;
-- [ ] ingresos, costos y margen legibles;
-- [ ] sensibilidad visible;
-- [ ] reconciliaciones en PASS;
-- [ ] guardas visibles;
-- [ ] dock inferior limpio;
-- [ ] responsive aprobado.
+- [x] panel abre, cierra y recarga;
+- [x] controles recalculan sin congelar la app;
+- [x] Mill y Leach se distinguen claramente;
+- [x] valor realizado y pendiente visibles;
+- [x] ingresos, costos y margen legibles;
+- [x] sensibilidad visible;
+- [x] reconciliaciones en PASS;
+- [x] guardas visibles;
+- [x] dock inferior limpio;
+- [x] responsive aprobado.
 
 ## Cierre
 
-- [ ] resultados técnicos documentados;
-- [ ] evidencia visual revisada;
-- [ ] PR marcado como Ready for review;
-- [ ] no fusionar todavía a `main` mientras continúe la cadena de PR apilados.
+- [x] resultados técnicos documentados;
+- [x] evidencia visual revisada;
+- [x] PR listo para Ready for review;
+- [x] no fusionar todavía a `main` mientras continúe la cadena de PR apilados.
 
-## Estado
+## Resultado
 
-**IMPLEMENTACIÓN COMPLETA · VALIDACIÓN LOCAL PENDIENTE**
+**ETAPA 8.10 — PASS TOTAL**
