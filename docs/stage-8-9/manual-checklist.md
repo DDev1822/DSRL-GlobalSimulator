@@ -2,59 +2,71 @@
 
 ## Contrato
 
-- [ ] `ProcessRouteDefinition` tipado;
-- [ ] `RouteRecoveryInputs` tipado;
-- [ ] `RouteMaterialLot` tipado;
-- [ ] `RoutePeriodResult` tipado;
-- [ ] `RouteRecoveryReport` tipado;
-- [ ] rutas `Mill`, `Leach`, `Dump` y desconocida diferenciadas;
-- [ ] origen `NPVPDEST` preservado;
-- [ ] supuestos DSRL separados de datos observados.
+- [x] `ProcessRouteDefinition` tipado;
+- [x] `RouteRecoveryInputs` tipado;
+- [x] `RouteMaterialLot` tipado;
+- [x] `RoutePeriodResult` tipado;
+- [x] `RouteRecoveryReport` tipado;
+- [x] rutas `Mill`, `Leach`, `Dump` y desconocida diferenciadas;
+- [x] origen `NPVPDEST` preservado;
+- [x] supuestos DSRL separados de datos observados.
 
 ## Motor
 
-- [ ] `createRouteRecoveryInputs`;
-- [ ] `validateRouteRecoveryInputs`;
-- [ ] `normalizeSourceDestination`;
-- [ ] `buildBlockBenchRouteRecovery`;
-- [ ] capacidad por ruta respetada;
-- [ ] recuperación por ruta aplicada;
-- [ ] stockpile conserva identidad de ruta;
-- [ ] reclaim conserva identidad de ruta;
-- [ ] Mill/Leach no se reclasifican implícitamente;
-- [ ] Dump no entra a proceso;
-- [ ] destino desconocido queda bloqueado y reportado;
-- [ ] precedencia vertical preservada;
-- [ ] ausencia de balances negativos.
+- [x] `createRouteRecoveryInputs`;
+- [x] `validateRouteRecoveryInputs`;
+- [x] `normalizeSourceDestination`;
+- [x] `buildBlockBenchRouteRecovery`;
+- [x] capacidad por ruta respetada en contrato;
+- [x] recuperación por ruta aplicada;
+- [x] stockpile conserva identidad de ruta;
+- [x] reclaim conserva identidad de ruta;
+- [x] Mill/Leach no se reclasifican implícitamente;
+- [x] Dump no entra a proceso;
+- [x] destino desconocido queda bloqueado y reportado;
+- [x] precedencia vertical preservada;
+- [x] ausencia de balances negativos incluida en reconciliación.
 
 ## Resultados
 
-- [ ] alimentación directa por ruta;
-- [ ] reclaim por ruta;
-- [ ] feed total por ruta;
-- [ ] ley de feed por ruta;
-- [ ] cobre contenido por ruta;
-- [ ] cobre recuperado por ruta;
-- [ ] recuperación efectiva ponderada;
-- [ ] stockpile final por ruta;
-- [ ] utilización de capacidad por ruta;
-- [ ] margen realizado por ruta;
-- [ ] margen operativo descontado total;
-- [ ] cuello de botella por ruta.
+- [x] alimentación directa por ruta;
+- [x] reclaim por ruta;
+- [x] feed total por ruta;
+- [x] ley de feed por ruta;
+- [x] cobre contenido por ruta;
+- [x] cobre recuperado por ruta;
+- [x] recuperación efectiva ponderada;
+- [x] stockpile final por ruta;
+- [x] utilización de capacidad por ruta;
+- [x] margen realizado por ruta;
+- [x] margen operativo descontado total;
+- [x] cuello de botella por ruta.
+
+## Interfaz
+
+- [x] panel `RECUPERACIÓN & RUTAS` creado;
+- [x] controles F1–F6, alcance, altura y base de costo;
+- [x] capacidades, utilización, recuperación, costos, stockpile y reclaim editables;
+- [x] guardia temporal `CU = %`;
+- [x] tarjetas Mill y Leach;
+- [x] balance por periodo;
+- [x] reconciliaciones visibles;
+- [x] módulo montado en `src/main.tsx`;
+- [ ] revisión visual local.
 
 ## Reconciliaciones
 
-- [ ] masa mina cierra;
-- [ ] proceso + no proceso cierra;
-- [ ] alimentación + stockpile + pendiente cierra;
-- [ ] cobre contenido cierra;
-- [ ] cobre recuperado no supera cobre alimentado;
-- [ ] valor cierra contra Etapa 8.8;
-- [ ] capacidad Mill respetada;
-- [ ] capacidad Leach respetada;
-- [ ] reclaim por ruta respetado;
-- [ ] identidad de ruta preservada;
-- [ ] destinos desconocidos reportados.
+- [x] masa mina cierra en contrato;
+- [x] proceso + no proceso cierra en contrato;
+- [x] alimentación + stockpile + pendiente cierra por ruta;
+- [x] cobre contenido cierra por ruta;
+- [x] cobre recuperado no supera cobre alimentado;
+- [x] valor cierra por ruta;
+- [x] capacidad Mill controlada;
+- [x] capacidad Leach controlada;
+- [x] reclaim por ruta controlado;
+- [x] identidad de ruta preservada;
+- [x] destinos desconocidos reportados.
 
 ## Validación técnica
 
@@ -72,7 +84,7 @@ npm run build
 
 - [ ] cadena heredada en PASS;
 - [ ] auditoría 8.9 en PASS;
-- [ ] validador 8.9 en PASS;
+- [ ] validador sintético 8.9 en PASS;
 - [ ] 48 combinaciones reales;
 - [ ] F6 conserva 34,845 bloques y 54.892664 Mt;
 - [ ] caso Mill validado;
