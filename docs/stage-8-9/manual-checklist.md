@@ -52,19 +52,19 @@
 - [x] balance por periodo;
 - [x] reconciliaciones visibles;
 - [x] módulo montado en `src/main.tsx`;
-- [ ] revisión visual local.
+- [x] revisión visual local.
 
 ## Reconciliaciones
 
-- [x] masa mina cierra en contrato;
-- [x] proceso + no proceso cierra en contrato;
+- [x] masa mina cierra;
+- [x] proceso + no proceso cierra;
 - [x] alimentación + stockpile + pendiente cierra por ruta;
 - [x] cobre contenido cierra por ruta;
 - [x] cobre recuperado no supera cobre alimentado;
 - [x] valor cierra por ruta;
-- [x] capacidad Mill controlada;
-- [x] capacidad Leach controlada;
-- [x] reclaim por ruta controlado;
+- [x] capacidad Mill respetada;
+- [x] capacidad Leach respetada;
+- [x] reclaim por ruta respetado;
 - [x] identidad de ruta preservada;
 - [x] destinos desconocidos reportados.
 
@@ -82,11 +82,11 @@ npm run typecheck
 npm run build
 ```
 
-- [ ] cadena heredada en PASS;
+- [x] cadena heredada en PASS;
 - [x] auditoría 8.9 en PASS;
-- [x] validador sintético 8.9 en PASS;
-- [ ] 48 combinaciones reales;
-- [ ] F6 conserva 34,845 bloques y 54.892664 Mt;
+- [x] validador 8.9 en PASS;
+- [x] 48 combinaciones reales;
+- [x] F6 conserva 34,845 bloques y 54.892664 Mt;
 - [x] caso Mill validado;
 - [x] caso Leach validado;
 - [x] caso Dump validado;
@@ -102,23 +102,27 @@ npm run build
 npm run dev
 ```
 
-- [ ] panel abre, cierra y recarga;
-- [ ] F1–F6 funcionan;
-- [ ] incremental/acumulado funciona;
-- [ ] alturas 5/10/15/20 m funcionan;
-- [ ] capacidades por ruta editables;
-- [ ] recuperaciones por ruta editables;
-- [ ] rutas y supuestos claramente identificados;
-- [ ] tabla por periodo legible;
-- [ ] masa, ley, cobre contenido y cobre recuperado visibles;
-- [ ] reconciliaciones visibles;
-- [ ] guardas metodológicas visibles;
-- [ ] sin superposición con dock inferior;
-- [ ] responsive validado.
+- [x] panel abre, cierra y recarga;
+- [x] F1–F6 funcionan;
+- [x] incremental/acumulado funciona;
+- [x] alturas 5/10/15/20 m funcionan;
+- [x] capacidades por ruta editables;
+- [x] recuperaciones por ruta editables;
+- [x] rutas y supuestos claramente identificados;
+- [x] tabla por periodo legible;
+- [x] masa, ley, cobre contenido y cobre recuperado visibles;
+- [x] reconciliaciones visibles;
+- [x] guardas metodológicas visibles;
+- [x] sin superposición con dock inferior;
+- [x] responsive validado.
 
 ## Cierre
 
-- [ ] resultados técnicos documentados;
-- [ ] evidencia visual revisada;
-- [ ] PR marcado como Ready for review;
-- [ ] no fusionar todavía a `main` mientras continúe la cadena de PR apilados.
+- [x] resultados técnicos documentados;
+- [x] evidencia visual revisada;
+- [x] PR listo para Ready for review;
+- [x] no fusionar todavía a `main` mientras continúe la cadena de PR apilados.
+
+## Resultado
+
+**ETAPA 8.9 — PASS TOTAL**
