@@ -86,12 +86,17 @@ function colorForMode(
   metrics: ViewerEconomicMetrics,
   group: 'Topografía' | 'Pit',
 ): THREE.Color {
-  if (group === 'Topografía') {
-    return new THREE.Color().setHSL(0.58, 0.12, 0.42 + elevationRatio * 0.18);
-  }
-
   const clampedElevation = THREE.MathUtils.clamp(elevationRatio, 0, 1);
   const clampedPhase = THREE.MathUtils.clamp(phaseRatio, 0, 1);
+  const bandedElevation = Math.round(clampedElevation * 14) / 14;
+
+  if (group === 'Topografía') {
+    return new THREE.Color().setHSL(
+      0.27 - bandedElevation * 0.04,
+      0.18,
+      0.34 + bandedElevation * 0.24,
+    );
+  }
 
   switch (mode) {
     case 'phase':
@@ -122,7 +127,11 @@ function colorForMode(
     }
     case 'component':
     default:
-      return new THREE.Color('#38bdf8');
+      return new THREE.Color().setHSL(
+        0.095 - bandedElevation * 0.025,
+        0.28,
+        0.22 + bandedElevation * 0.32,
+      );
   }
 }
 
@@ -260,8 +269,9 @@ function TriangleMesh({
         opacity={hovered ? Math.min(opacity + 0.08, 1) : opacity}
         transparent={opacity < 1}
         depthWrite={depthWrite}
-        roughness={0.72}
-        metalness={0.08}
+        flatShading={group === 'Pit'}
+        roughness={group === 'Pit' ? 0.94 : 0.88}
+        metalness={0.02}
       />
     </mesh>
   );
@@ -326,7 +336,7 @@ export default function DataminePhaseViewer({
 
   return (
     <div className="datamine-canvas">
-      <Canvas dpr={[1, 1.6]}>
+      <Canvas dpr={[1, 1.6]} gl={{ antialias: true, alpha: true }}>
         <PerspectiveCamera
           makeDefault
           position={[
@@ -346,9 +356,10 @@ export default function DataminePhaseViewer({
           maxDistance={maxRange * 4}
           target={[0, 0, 0]}
         />
-        <ambientLight intensity={0.82} />
-        <directionalLight position={[10, 14, 8]} intensity={1.28} />
-        <directionalLight position={[-8, 5, -10]} intensity={0.38} />
+        <ambientLight intensity={0.5} />
+        <hemisphereLight args={['#b8c7c2', '#1a2428', 0.68]} />
+        <directionalLight position={[12, 16, 9]} intensity={1.62} />
+        <directionalLight position={[-10, 7, -12]} intensity={0.46} />
 
         {showTopography &&
           topographyData &&
@@ -362,7 +373,7 @@ export default function DataminePhaseViewer({
               colorMode="component"
               phaseStep={phaseStep}
               economicMetrics={economicMetrics}
-              opacity={0.28}
+              opacity={0.58}
               depthWrite={false}
               onHover={onTriangleHover}
             />
@@ -378,7 +389,7 @@ export default function DataminePhaseViewer({
             colorMode={colorMode}
             phaseStep={phaseStep}
             economicMetrics={economicMetrics}
-            opacity={0.88}
+            opacity={0.98}
             depthWrite
             onHover={onTriangleHover}
           />
@@ -389,7 +400,7 @@ export default function DataminePhaseViewer({
             <StringLine key={cutString.id} cutString={cutString} bounds={bounds} />
           ))}
 
-        <gridHelper args={[maxRange * 2, 20, '#33516f', '#18304a']} />
+        <gridHelper args={[maxRange * 2, 20, '#46606e', '#20323b']} />
         <axesHelper args={[maxRange / 2]} />
       </Canvas>
     </div>
