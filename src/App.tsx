@@ -18,6 +18,7 @@ import {
   Target,
   Zap,
 } from 'lucide-react';
+import './styles/app-shell.css';
 import EconomicControlDeck from './components/EconomicControlDeck';
 import EconomicCurve from './components/EconomicCurve';
 import PitWorkspace from './components/PitWorkspace';
@@ -156,8 +157,6 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <style>{APP_STYLES}</style>
-
       <header className="topbar">
         <div className="brand-block">
           <div className="brand-icon"><Mountain size={21} /></div>
@@ -174,10 +173,16 @@ export default function App() {
             className={controlDeckOpen ? 'active' : ''}
             onClick={() => setControlDeckOpen((value) => !value)}
             aria-expanded={controlDeckOpen}
+            aria-controls="economic-control-deck"
+            aria-label={controlDeckOpen ? 'Cerrar panel de control económico' : 'Abrir panel de control económico'}
           >
             <SlidersHorizontal size={13} /> CONTROL DECK
           </button>
-          <button type="button" onClick={toggleFullscreen}>
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Activar pantalla completa'}
+          >
             {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
             {isFullscreen ? 'SALIR DE PANTALLA COMPLETA' : 'PANTALLA COMPLETA'}
           </button>
@@ -284,22 +289,10 @@ export default function App() {
               tone="blue"
             />
             <div className="metric-pair">
-              <Metric
-                label="WACC"
-                value={`${(economicInputs.wacc * 100).toFixed(1)} %`}
-                tone="yellow"
-              />
-              <Metric
-                label="PRODUCTION"
-                value={`${economicInputs.annualProductionMt.toFixed(0)} Mt/a`}
-                tone="green"
-              />
+              <Metric label="WACC" value={`${(economicInputs.wacc * 100).toFixed(1)} %`} tone="yellow" />
+              <Metric label="PRODUCTION" value={`${economicInputs.annualProductionMt.toFixed(0)} Mt/a`} tone="green" />
             </div>
-            <button
-              className="action primary"
-              type="button"
-              onClick={() => setControlDeckOpen(true)}
-            >
+            <button className="action primary" type="button" onClick={() => setControlDeckOpen(true)}>
               ABRIR CONTROL DECK
             </button>
           </Panel>
@@ -350,17 +343,7 @@ export default function App() {
   );
 }
 
-function Panel({
-  icon,
-  title,
-  children,
-  grow = false,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  children: React.ReactNode;
-  grow?: boolean;
-}) {
+function Panel({ icon, title, children, grow = false }: { icon: React.ReactNode; title: string; children: React.ReactNode; grow?: boolean }) {
   return (
     <section className={`rail-panel ${grow ? 'grow' : ''}`}>
       <div className="rail-title"><span>{icon}{title}</span></div>
@@ -369,15 +352,7 @@ function Panel({
   );
 }
 
-function Metric({
-  label,
-  value,
-  tone = 'neutral',
-}: {
-  label: string;
-  value: string;
-  tone?: string;
-}) {
+function Metric({ label, value, tone = 'neutral' }: { label: string; value: string; tone?: string }) {
   return (
     <div className={`metric tone-${tone}`}>
       <span>{label}</span>
@@ -386,17 +361,7 @@ function Metric({
   );
 }
 
-function ProgressMetric({
-  label,
-  value,
-  progress,
-  tone,
-}: {
-  label: string;
-  value: string;
-  progress: number;
-  tone: string;
-}) {
+function ProgressMetric({ label, value, progress, tone }: { label: string; value: string; progress: number; tone: string }) {
   return (
     <div className={`progress-metric tone-${tone}`}>
       <div><span>{label}</span><strong>{value}</strong></div>
@@ -405,23 +370,7 @@ function ProgressMetric({
   );
 }
 
-function Slider({
-  label,
-  value,
-  min,
-  max,
-  step,
-  display,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  display: string;
-  onChange: (value: number) => void;
-}) {
+function Slider({ label, value, min, max, step, display, onChange }: { label: string; value: number; min: number; max: number; step: number; display: string; onChange: (value: number) => void }) {
   return (
     <label className="slider-field">
       <span><b>{label}</b><strong>{display}</strong></span>
@@ -429,125 +378,3 @@ function Slider({
     </label>
   );
 }
-
-const APP_STYLES = `
-  * { box-sizing: border-box; }
-  html, body, #root { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #08182d; }
-  button, input, select { font: inherit; }
-  .app-shell { width: 100vw; height: 100vh; overflow: hidden; background: linear-gradient(180deg,#142a49 0,#0b1d34 100%); color: #e8f2ff; font-family: Inter, Segoe UI, sans-serif; }
-  .topbar { height: 49px; display:flex; align-items:center; justify-content:space-between; padding:0 12px; border-bottom:2px solid #28e6dc; background:#203a5f; }
-  .brand-block,.topbar-actions,.brand-block>div,.online,.topbar-actions span,.topbar-actions button { display:flex; align-items:center; }
-  .brand-block { gap:10px; }
-  .brand-icon { width:30px;height:30px;justify-content:center;background:#31e6d7;color:#062036;border-radius:3px; }
-  .brand-title { font-weight:900; color:#35eee0; font-size:13px; letter-spacing:.3px; }
-  .brand-subtitle { font-size:7px; color:#b4c7df; margin-top:1px; }
-  .divider { width:1px;height:26px;background:#86a4c7;opacity:.55; }
-  .online { gap:6px;color:#35eee0;font-size:8px;font-weight:800; }
-  .online i { width:7px;height:7px;border-radius:50%;background:#35eee0;box-shadow:0 0 9px #35eee0; }
-  .topbar-actions { gap:10px;font-size:8px;color:#c3d4e8; }
-  .topbar-actions span { gap:5px; }
-  .topbar-actions button { gap:6px;padding:7px 10px;background:#29486f;border:1px solid #6f91b8;color:#62f4e8;border-radius:3px;font-size:8px;font-weight:800;cursor:pointer; }
-  .topbar-actions button.active { background:#2de5d8;color:#06243a;border-color:#2de5d8; }
-  .dashboard-grid { height:calc(100vh - 49px); display:grid; grid-template-columns:180px minmax(0,1fr) 205px; gap:7px; padding:7px; overflow:hidden; }
-  .left-rail,.right-rail { display:flex;flex-direction:column;gap:7px;min-height:0; }
-  .center-stage { display:grid;grid-template-rows:minmax(250px,42%) minmax(330px,58%);gap:7px;min-width:0;min-height:0; }
-  .rail-panel,.hero-panel { background:linear-gradient(180deg,#27476f,#1b3557);border:1px solid #6d89aa;border-radius:5px;box-shadow:inset 0 0 0 1px rgba(7,24,45,.5);overflow:hidden;min-height:0; }
-  .rail-panel { display:flex;flex-direction:column; }
-  .rail-panel.grow { flex:1; }
-  .rail-title,.section-heading { height:29px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid #7591b3;background:#294a74;font-size:8px;font-weight:900; }
-  .rail-title span,.section-heading span { display:flex;align-items:center;gap:6px; }
-  .section-heading small { color:#43eee0;font-size:7px; }
-  .rail-content { display:flex;flex-direction:column;gap:7px;padding:7px;min-height:0; }
-  .metric { background:#183252;border:1px solid #527095;border-radius:3px;padding:8px;min-width:0; }
-  .metric span { display:block;font-size:6px;color:#b5c8df;font-weight:800;margin-bottom:5px; }
-  .metric strong { display:block;font-family:Consolas,monospace;font-size:12px;white-space:nowrap; }
-  .metric-pair,.cost-grid { display:grid;grid-template-columns:1fr 1fr;gap:6px; }
-  .tone-yellow strong { color:#ffe02e; }.tone-cyan strong { color:#3ff6ef; }.tone-blue strong { color:#65c9ff; }.tone-green strong { color:#3de7b4; }.tone-purple strong { color:#e188ff; }.tone-neutral strong { color:#e7effa; }
-  .progress-metric { padding:7px;background:#183252;border:1px solid #527095;border-radius:3px; }
-  .progress-metric>div { display:flex;justify-content:space-between;gap:4px;font-size:7px;font-weight:800; }
-  .progress-metric strong { font-family:Consolas,monospace; }
-  .progress-metric i { display:block;height:3px;background:#24415f;margin-top:7px;overflow:hidden; }
-  .progress-metric i b { display:block;height:100%;background:#3ff6ef; }
-  .slider-field { display:block;padding:4px 0 7px; }
-  .slider-field span { display:flex;justify-content:space-between;font-size:7px;margin-bottom:7px; }
-  .slider-field strong { color:#f4f8ff;font-family:Consolas,monospace; }
-  input[type=range] { width:100%;accent-color:#31e6d7;cursor:pointer; }
-  .hero-panel { display:flex;flex-direction:column; }
-  .hero-panel>.curve-workspace,.hero-panel>.pit-workspace { flex:1;min-height:0; }
-  .heading-badges { display:flex;gap:6px; }
-  .heading-badges b { padding:3px 7px;border:1px solid #6685aa;border-radius:3px;font-size:7px;color:#bfeeff;background:#153252; }
-  .curve-workspace,.pit-workspace { display:grid;grid-template-columns:225px minmax(0,1fr);gap:0;background:#081b32;min-width:0;min-height:0; }
-  .curve-sidecard,.pit-sidecard { padding:10px;border-right:1px solid #7691ae;background:linear-gradient(180deg,#24456e,#172f4e);overflow:auto; }
-  .sidecard-eyebrow { color:#52f4e8;font-size:7px;font-weight:900; }
-  .sidecard-title { font-size:11px;font-weight:900;margin:6px 0; }
-  .sidecard-copy { font-size:7px;line-height:1.45;color:#c5d3e5;margin:0 0 9px; }
-  .curve-legend { display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px; }
-  .curve-legend span { display:flex;align-items:center;gap:5px;padding:4px;border:1px solid #6783a6;border-radius:3px;font-size:7px;font-weight:800; }
-  .dot { width:7px;height:7px;border-radius:50%; }.dot.ton{background:#67c8ff}.dot.grade{background:#fde047}.dot.npv{background:#2dd4bf}
-  .live-values,.pit-stats,.phase-economics,.hover-readout { display:flex;flex-direction:column;gap:4px; }
-  .live-values div,.pit-stats div,.phase-economics div,.hover-readout div { display:flex;justify-content:space-between;gap:8px;padding:5px 6px;background:#173351;border:1px solid #4f6e93;border-radius:2px;font-size:7px; }
-  .live-values strong,.pit-stats strong,.phase-economics strong,.hover-readout strong { font-family:Consolas,monospace;color:#eaf7ff; }
-  .curve-canvas { min-width:0;min-height:0;background:#071a31;padding:5px; }
-  .curve-canvas svg { width:100%;height:100%;display:block; }
-  .field-label { display:block;margin:9px 0 4px;font-size:7px;font-weight:900;color:#b8cce2; }
-  .field-select,.phase-toolbar select { width:100%;padding:6px;background:#173452;color:#eef7ff;border:1px solid #7a96b7;border-radius:3px;font-size:8px; }
-  .layer-note { margin:5px 0 8px;color:#9db6d1;font-size:6px;line-height:1.35; }
-  .compact-button,.action { border:1px solid #6f8fb2;background:#24466d;color:#eaf4ff;border-radius:3px;padding:7px;font-size:7px;font-weight:900;cursor:pointer; }
-  .compact-button.active,.action.primary { background:#29e6d7;color:#062138;border-color:#29e6d7; }
-  .hover-readout { margin-top:8px; }
-  .hover-title { color:#52f4e8;font-size:7px;font-weight:900;margin-bottom:3px; }
-  .hover-readout p { font-size:6px;line-height:1.4;color:#a8bdd4;margin:0; }
-  .pit-view-column { display:grid;grid-template-rows:minmax(0,1fr) 44px;min-width:0;min-height:0; }
-  .pit-viewer-shell,.datamine-canvas { width:100%;height:100%;min-height:0;background:#071a31;position:relative; }
-  .viewer-empty,.viewer-state { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;color:#a8bdd4;font-size:10px; }
-  .error-state { color:#ffb4b4;padding:20px;text-align:center; }.error-state button{padding:6px 10px;background:#5b2333;color:white;border:1px solid #ff8b9c;border-radius:3px;cursor:pointer;}
-  .phase-toolbar { display:grid;grid-template-columns:30px 30px 30px 30px minmax(220px,1fr) minmax(150px,.9fr) 72px;gap:5px;align-items:center;padding:5px 7px;border-top:1px solid #6f8dad;background:#1d3a5d; }
-  .phase-toolbar>button,.phase-buttons button { height:28px;border:1px solid #6a89ac;background:#24476f;color:#dceaff;border-radius:3px;cursor:pointer; }
-  .phase-toolbar>button.active,.phase-buttons button.selected { background:#2ce5d7;color:#062238;border-color:#2ce5d7; }
-  .phase-buttons { display:grid;grid-template-columns:repeat(6,1fr);gap:4px; }
-  .phase-toolbar input { min-width:0; }
-  .constraint { display:flex;align-items:center;gap:5px;margin-top:7px;padding:6px;border:1px solid #1d977f;background:#174d52;color:#51f0d2;font-size:7px;font-weight:900; }
-  .action { width:100%;margin-bottom:5px; }
-  .system-lines { display:flex;flex-direction:column;gap:4px;font-size:7px;color:#b6c8dc; }
-  .system-lines span { display:flex;justify-content:space-between; }.system-lines b{color:#46ede0;font-family:Consolas,monospace;}
-  .economic-control-drawer { position:fixed;left:194px;right:219px;bottom:8px;z-index:100;overflow:hidden;border:1px solid #4ff3e7;border-radius:7px;background:linear-gradient(180deg,#23486e 0,#132d4a 100%);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 22px rgba(45,229,216,.14); }
-  .economic-control-header { min-height:44px;display:grid;grid-template-columns:minmax(240px,1fr) auto auto;gap:12px;align-items:center;padding:7px 9px;border-bottom:1px solid #6d8cab;background:#294d74; }
-  .economic-control-title { display:flex;align-items:center;gap:8px;color:#50f1e5; }
-  .economic-control-title>div { display:flex;flex-direction:column;gap:2px; }
-  .economic-control-title strong { font-size:9px;letter-spacing:.3px; }
-  .economic-control-title span { color:#b9cce1;font-size:6px; }
-  .economic-control-summary { display:flex;gap:5px; }
-  .economic-control-summary span { padding:5px 7px;border:1px solid #5f7fa3;border-radius:3px;background:#173552;color:#a9bdd5;font-size:6px;font-weight:800; }
-  .economic-control-summary b { margin-left:4px;color:#43f2e5;font-family:Consolas,monospace; }
-  .economic-control-actions { display:flex;gap:5px; }
-  .economic-control-actions button { display:flex;align-items:center;gap:4px;padding:6px 8px;border:1px solid #6e8fb2;border-radius:3px;background:#1d3d61;color:#eaf5ff;font-size:6px;font-weight:900;cursor:pointer; }
-  .economic-control-actions button:hover { border-color:#43eee0;color:#43eee0; }
-  .economic-control-actions .drawer-close { width:29px;justify-content:center;padding:0; }
-  .economic-control-grid { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px; }
-  .economic-control-field { display:block;padding:7px;border:1px solid #55779b;border-radius:4px;background:#16324f;min-width:0; }
-  .economic-field-heading { display:flex;justify-content:space-between;align-items:center;gap:5px;margin-bottom:5px; }
-  .economic-field-heading b { color:#dcecff;font-size:7px; }
-  .economic-field-heading small { color:#7fa2c4;font-size:6px;white-space:nowrap; }
-  .economic-field-input-row { display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px;align-items:center;margin-bottom:4px; }
-  .economic-field-input-row input { width:100%;padding:4px 5px;border:1px solid #6586aa;border-radius:3px;background:#0e2843;color:#45eee2;font-family:Consolas,monospace;font-size:10px;font-weight:800; }
-  .economic-field-input-row strong { color:#9eb9d5;font-size:6px;white-space:nowrap; }
-  .economic-control-field input[type=range] { display:block;width:100%;height:10px; }
-  .economic-field-message { display:block;margin-top:3px;font-size:6px;line-height:1.2; }
-  .economic-field-message.warning { color:#ffd56a; }.economic-field-message.error { color:#ff8d9e; }
-  .economic-control-footer { display:flex;justify-content:space-between;gap:10px;padding:5px 9px;border-top:1px solid #4e7095;background:#112a46;color:#8fabca;font-size:6px; }
-  @media (max-width:1200px), (max-height:720px) {
-    html,body,#root { overflow:auto; }
-    .app-shell { height:auto;min-height:100vh;overflow:visible; }
-    .dashboard-grid { height:auto;grid-template-columns:1fr;overflow:visible; }
-    .left-rail,.right-rail { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); }
-    .center-stage { grid-template-rows:420px 560px; }
-    .economic-control-drawer { left:8px;right:8px;max-height:78vh;overflow:auto; }
-    .economic-control-header { grid-template-columns:1fr; }
-    .economic-control-summary,.economic-control-actions { flex-wrap:wrap; }
-    .economic-control-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  }
-  @media (max-width:700px) {
-    .economic-control-grid { grid-template-columns:1fr; }
-    .economic-control-footer { flex-direction:column; }
-  }
-`;
