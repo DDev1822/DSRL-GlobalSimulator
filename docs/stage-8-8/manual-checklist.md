@@ -33,7 +33,18 @@ Confirmar:
 npm run dev
 ```
 
-En `STOCKPILE & BLENDING` confirmar:
+### Layout inferior
+
+Confirmado por el usuario después de actualizar la rama `feat/stage-8-8-stockpile-blending`:
+
+- [x] los botones inferiores ya no se superponen;
+- [x] el dock reserva espacio y no cubre los controles de fases;
+- [ ] los paneles abiertos permanecen por encima del dock en todos los anchos;
+- [ ] responsive validado en escritorio, ancho medio y móvil.
+
+### STOCKPILE & BLENDING
+
+Confirmar:
 
 - [ ] panel abre, cierra y recarga;
 - [ ] F1–F6, alcance, altura y base de costo funcionan;
@@ -48,3 +59,10 @@ En `STOCKPILE & BLENDING` confirmar:
 - [ ] margen realizado y descontado son visibles;
 - [ ] reconciliaciones aparecen en PASS;
 - [ ] se declara simulación preliminar, no VAN, no plan minero ni reservas.
+
+## Cierre de etapa
+
+- [ ] resultados técnicos documentados en el PR 21;
+- [ ] evidencia visual adjunta o descrita;
+- [ ] PR 21 marcado como Ready for review;
+- [ ] no fusionar todavía a `main` mientras continúe la cadena de PR apilados.
