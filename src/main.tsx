@@ -13,6 +13,7 @@ import BlockBenchEconomicValuePanel from './components/BlockBenchEconomicValuePa
 import BlockBenchPreliminarySequencePanel from './components/BlockBenchPreliminarySequencePanel';
 import BlockBenchStockpileBlendingPanel from './components/BlockBenchStockpileBlendingPanel';
 import BlockBenchRouteRecoveryPanel from './components/BlockBenchRouteRecoveryPanel';
+import IntegratedRouteEconomicsPanel from './components/IntegratedRouteEconomicsPanel';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -30,5 +31,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BlockBenchPreliminarySequencePanel />
     <BlockBenchStockpileBlendingPanel />
     <BlockBenchRouteRecoveryPanel />
+    <IntegratedRouteEconomicsPanel />
   </React.StrictMode>,
 );
