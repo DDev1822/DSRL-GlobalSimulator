@@ -7,6 +7,7 @@ import OptimalPhasePanel from './components/OptimalPhasePanel';
 import RecommendationRobustnessPanel from './components/RecommendationRobustnessPanel';
 import BlockModelQualityPanel from './components/BlockModelQualityPanel';
 import BlockInventoryPanel from './components/BlockInventoryPanel';
+import BlockBenchInventoryPanel from './components/BlockBenchInventoryPanel';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -18,5 +19,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <RecommendationRobustnessPanel />
     <BlockModelQualityPanel />
     <BlockInventoryPanel />
+    <BlockBenchInventoryPanel />
   </React.StrictMode>,
 );
