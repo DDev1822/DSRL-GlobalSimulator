@@ -3,7 +3,11 @@
 ## Técnica
 
 ```bash
-npm run verify:stage8-7
+npm run verify:stage8-6
+node scripts/audit-stage-8-7.mjs
+node scripts/validate-block-bench-preliminary-sequence.mjs
+npm run typecheck
+npm run build
 ```
 
 Confirmar:
