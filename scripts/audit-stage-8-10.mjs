@@ -45,7 +45,7 @@ for (const token of [
 ]) check(panel, token, `panel: ${token}`);
 
 check(main, 'IntegratedRouteEconomicsPanel', 'módulo montado en main');
-for (const token of ['etapa 8.10', 'economía integrada por ruta', 'metal pagable', 'valor pendiente', 'no será van']) {
+for (const token of ['etapa 8.10', 'economía integrada por ruta', 'metal pagable', 'valor pendiente', 'no es van']) {
   check(readme, token, `readme: ${token}`);
 }
 
