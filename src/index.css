@@ -76,14 +76,43 @@ code,
 #root > .app-shell {
   grid-column: 1 / -1;
   grid-row: 1;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 49px minmax(0, 1fr) auto;
   width: calc(100% + 12px) !important;
   height: 100% !important;
   min-height: 0 !important;
   margin-left: -6px;
 }
 
-#root > .app-shell .dashboard-grid {
-  height: calc(100% - 49px) !important;
+#root > .app-shell > .topbar {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#root > .app-shell > .dashboard-grid {
+  grid-column: 1;
+  grid-row: 2;
+  width: 100%;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+/* El Control Deck ocupa una fila propia dentro del dashboard y nunca queda bajo el dock. */
+#root > .app-shell > .economic-control-drawer {
+  position: static !important;
+  inset: auto !important;
+  grid-column: 1;
+  grid-row: 3;
+  align-self: stretch;
+  justify-self: stretch;
+  width: auto !important;
+  min-height: 0 !important;
+  max-height: clamp(172px, 23vh, 220px) !important;
+  margin: 0 7px 7px;
+  overflow: auto !important;
+  transform: none !important;
+  z-index: 120 !important;
 }
 
 #root > b\75 tton {
@@ -124,6 +153,10 @@ code,
   #root {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+
+  #root > .app-shell > .economic-control-drawer {
+    max-height: clamp(190px, 30vh, 280px) !important;
+  }
 }
 
 @media (max-width: 760px) {
@@ -141,5 +174,10 @@ code,
     min-height: 32px !important;
     padding-inline: 5px !important;
     font-size: 7px !important;
+  }
+
+  #root > .app-shell > .economic-control-drawer {
+    max-height: 38vh !important;
+    margin-inline: 5px;
   }
 }
