@@ -20,6 +20,8 @@
     "validate:block-bench-inventory": "node scripts/validate-block-bench-inventory.mjs",
     "validate:block-economics": "node scripts/validate-block-economic-classification.mjs",
     "validate:block-bench-value": "node scripts/validate-block-bench-economic-value.mjs",
+    "validate:haulage-logistics": "node scripts/validate-preliminary-haulage-logistics.mjs",
+    "validate:road-condition": "node scripts/validate-road-condition-economic-impact.mjs",
     "audit:baseline": "node scripts/audit-baseline.mjs",
     "audit:stage1": "node scripts/audit-stage-1.mjs",
     "audit:stage2": "node scripts/audit-stage-2.mjs",
@@ -34,6 +36,8 @@
     "audit:stage8-4": "node scripts/audit-stage-8-4.mjs",
     "audit:stage8-5": "node scripts/audit-stage-8-5.mjs",
     "audit:stage8-6": "node scripts/audit-stage-8-6.mjs",
+    "audit:stage8-11": "node scripts/audit-stage-8-11.mjs",
+    "audit:stage8-12": "node scripts/audit-stage-8-12.mjs",
     "verify:baseline": "npm run validate:data && npm run audit:baseline && npm run typecheck && npm run build",
     "verify:stage1": "npm run validate:data && npm run audit:baseline && npm run audit:stage1 && npm run validate:economics && npm run typecheck && npm run build",
     "verify:stage2": "npm run validate:data && npm run audit:baseline && npm run audit:stage1 && npm run audit:stage2 && npm run validate:economics && npm run typecheck && npm run build",
@@ -47,7 +51,9 @@
     "verify:stage8-3": "npm run verify:stage8-2 && npm run audit:stage8-3 && npm run validate:block-inventory && npm run typecheck && npm run build",
     "verify:stage8-4": "npm run verify:stage8-3 && npm run audit:stage8-4 && npm run validate:block-bench-inventory && npm run typecheck && npm run build",
     "verify:stage8-5": "npm run verify:stage8-4 && npm run audit:stage8-5 && npm run validate:block-economics && npm run typecheck && npm run build",
-    "verify:stage8-6": "npm run verify:stage8-5 && npm run audit:stage8-6 && npm run validate:block-bench-value && npm run typecheck && npm run build"
+    "verify:stage8-6": "npm run verify:stage8-5 && npm run audit:stage8-6 && npm run validate:block-bench-value && npm run typecheck && npm run build",
+    "verify:stage8-11": "npm run audit:stage8-11 && npm run validate:haulage-logistics && npm run typecheck && npm run build",
+    "verify:stage8-12": "npm run verify:stage8-11 && npm run audit:stage8-12 && npm run validate:road-condition && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.3",
