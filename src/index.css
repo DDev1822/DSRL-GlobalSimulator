@@ -56,3 +56,5 @@ code,
   border-radius: 999px;
   background: #334155;
 }
+
+.foo { display: grid; }
