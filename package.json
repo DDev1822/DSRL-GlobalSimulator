@@ -13,6 +13,7 @@
     "validate:benches": "node scripts/validate-bench-analysis.mjs",
     "validate:phases": "node scripts/validate-phase-comparison.mjs",
     "validate:recommendation": "node scripts/validate-value-risk-recommendation.mjs",
+    "validate:sensitivity": "node scripts/validate-recommendation-sensitivity.mjs",
     "audit:baseline": "node scripts/audit-baseline.mjs",
     "audit:stage1": "node scripts/audit-stage-1.mjs",
     "audit:stage2": "node scripts/audit-stage-2.mjs",
@@ -20,13 +21,15 @@
     "audit:stage4": "node scripts/audit-stage-4.mjs",
     "audit:stage5": "node scripts/audit-stage-5.mjs",
     "audit:stage6": "node scripts/audit-stage-6.mjs",
+    "audit:stage7": "node scripts/audit-stage-7.mjs",
     "verify:baseline": "npm run validate:data && npm run audit:baseline && npm run typecheck && npm run build",
     "verify:stage1": "npm run validate:data && npm run audit:baseline && npm run audit:stage1 && npm run validate:economics && npm run typecheck && npm run build",
     "verify:stage2": "npm run validate:data && npm run audit:baseline && npm run audit:stage1 && npm run audit:stage2 && npm run validate:economics && npm run typecheck && npm run build",
     "verify:stage3": "npm run validate:data && npm run audit:baseline && npm run audit:stage1 && npm run audit:stage2 && npm run audit:stage3 && npm run validate:economics && npm run typecheck && npm run build",
     "verify:stage4": "node scripts/verify-stage-4.mjs",
     "verify:stage5": "npm run verify:stage4 && npm run audit:stage5 && npm run validate:phases && npm run typecheck && npm run build",
-    "verify:stage6": "npm run verify:stage5 && npm run audit:stage6 && npm run validate:recommendation && npm run typecheck && npm run build"
+    "verify:stage6": "npm run verify:stage5 && npm run audit:stage6 && npm run validate:recommendation && npm run typecheck && npm run build",
+    "verify:stage7": "npm run verify:stage6 && npm run audit:stage7 && npm run validate:sensitivity && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.3",
