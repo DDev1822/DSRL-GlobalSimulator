@@ -1,0 +1,67 @@
+{
+  "contractVersion": "8.1.0",
+  "coordinateSystem": "LOCAL_MINE_GRID",
+  "geometryUnits": "metres",
+  "primaryModel": {
+    "fileName": "simmodPL.csv",
+    "expectedPathCandidates": [
+      "public/data/block-model/simmodPL.csv",
+      "public/data/simmodPL.csv",
+      "data/block-model/simmodPL.csv",
+      "data/simmodPL.csv"
+    ],
+    "observedRows": 49989,
+    "observedColumns": 37,
+    "observedPushbacks": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "observedScheduleYears": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    "observedDestinations": {
+      "_DUMP_": 25257,
+      "Mill": 16140,
+      "Leach": 8592
+    }
+  },
+  "controlModel": {
+    "fileName": "OPDemo3PB.csv",
+    "expectedPathCandidates": [
+      "public/data/block-model/OPDemo3PB.csv",
+      "public/data/OPDemo3PB.csv",
+      "data/block-model/OPDemo3PB.csv",
+      "data/OPDemo3PB.csv"
+    ],
+    "observedRows": 18981,
+    "observedColumns": 37,
+    "observedPushbacks": [1, 2, 3],
+    "relationship": "Exact row-for-row subset of primaryModel where PSB_PIT <= 3"
+  },
+  "stageScope": {
+    "supportedPhases": [1, 2, 3, 4, 5, 6],
+    "preservedFuturePushbacks": [7, 8, 9],
+    "phaseAssignmentField": "PSB_PIT",
+    "phaseAssignmentMode": "incremental",
+    "phaseSemanticStatus": "structurally-supported-external-dictionary-pending"
+  },
+  "physicalContract": {
+    "officialVolumeField": "NPVVOL",
+    "officialMassField": "NPVMASS",
+    "densityField": "DENSITY",
+    "volumeReconciliation": "NPVVOL ~= XINC * YINC * ZINC",
+    "massReconciliation": "NPVMASS ~= NPVVOL * DENSITY",
+    "blockIdentity": ["XC", "YC", "ZC", "XINC", "YINC", "ZINC"],
+    "nonUniqueParentReference": "IJK"
+  },
+  "observedF1ToF6": {
+    "rows": 34845,
+    "totalMassMt": 54.89266375078649,
+    "processMassMt": 39.106396711706985,
+    "wasteMassMt": 15.786267039079501,
+    "destinationBasedStripRatio": 0.40367480428984875
+  },
+  "semanticGuardrails": {
+    "inventoryLabel": "inventario dentro del diseño",
+    "reserveClaimAllowed": false,
+    "auUnit": "unconfirmed",
+    "cuUnit": "unconfirmed",
+    "currencyUnit": "unconfirmed",
+    "economicsUsage": "audit-reference-only-until-mapped"
+  }
+}
