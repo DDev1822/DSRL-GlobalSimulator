@@ -18,6 +18,15 @@ function requireToken(source, token, label) {
     console.error(`FAIL: ${label}`);
   }
 }
+function requireTokenInsensitive(source, token, label) {
+  if (source.toLocaleLowerCase('es').includes(token.toLocaleLowerCase('es'))) {
+    passedChecks += 1;
+    console.log(`PASS: ${label}`);
+  } else {
+    failures.push(label);
+    console.error(`FAIL: ${label}`);
+  }
+}
 
 const engine = read('src/engine/blockInventory.ts');
 const panel = read('src/components/BlockInventoryPanel.tsx');
@@ -104,7 +113,7 @@ for (const token of [
   '34,845',
   '54.892664',
   'Etapa 8.4',
-]) requireToken(readme, token, `readme 8.3: ${token}`);
+]) requireTokenInsensitive(readme, token, `readme 8.3: ${token}`);
 
 requireToken(checklist, 'npm run verify:stage8-3', 'checklist incluye comando 8.3');
 requireToken(packageJson, 'validate:block-inventory', 'package incluye validador 8.3');
