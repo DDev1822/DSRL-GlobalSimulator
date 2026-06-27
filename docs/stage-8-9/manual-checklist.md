@@ -83,18 +83,18 @@ npm run build
 ```
 
 - [ ] cadena heredada en PASS;
-- [ ] auditoría 8.9 en PASS;
-- [ ] validador sintético 8.9 en PASS;
+- [x] auditoría 8.9 en PASS;
+- [x] validador sintético 8.9 en PASS;
 - [ ] 48 combinaciones reales;
 - [ ] F6 conserva 34,845 bloques y 54.892664 Mt;
-- [ ] caso Mill validado;
-- [ ] caso Leach validado;
-- [ ] caso Dump validado;
-- [ ] destino desconocido rechazado/reportado;
-- [ ] recuperación 100% validada;
-- [ ] recuperación 0% validada;
-- [ ] recuperación Mill > Leach validada;
-- [ ] TypeScript y build en PASS.
+- [x] caso Mill validado;
+- [x] caso Leach validado;
+- [x] caso Dump validado;
+- [x] destino desconocido rechazado/reportado;
+- [x] recuperación 100% validada;
+- [x] recuperación 0% validada;
+- [x] recuperación Mill > Leach validada;
+- [x] TypeScript y build en PASS.
 
 ## Validación visual
 
