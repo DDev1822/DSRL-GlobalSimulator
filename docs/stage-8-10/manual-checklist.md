@@ -2,92 +2,92 @@
 
 ## Contrato
 
-- [ ] `RouteEconomicDefinition` tipado;
-- [ ] `RouteEconomicInputs` tipado;
-- [ ] `RouteEconomicPeriod` tipado;
-- [ ] `RouteEconomicTotals` tipado;
-- [ ] `IntegratedRouteEconomicReport` tipado;
-- [ ] rutas Mill y Leach preservadas;
-- [ ] `_DUMP_` excluido de proceso;
-- [ ] destinos desconocidos bloqueados y reportados;
-- [ ] supuestos DSRL separados de datos observados.
+- [x] `RouteEconomicDefinition` tipado;
+- [x] `IntegratedRouteEconomicInputs` tipado;
+- [x] `RouteEconomicPeriod` tipado;
+- [x] `RouteEconomicTotals` tipado;
+- [x] `IntegratedRouteEconomicReport` tipado;
+- [x] rutas Mill y Leach preservadas;
+- [x] `_DUMP_` excluido de proceso por herencia de 8.9;
+- [x] destinos desconocidos bloqueados y reportados;
+- [x] supuestos DSRL separados de datos observados.
 
 ## Motor
 
-- [ ] `createIntegratedRouteEconomicInputs`;
-- [ ] `validateIntegratedRouteEconomicInputs`;
-- [ ] `buildIntegratedRouteEconomics`;
-- [ ] `buildRouteEconomicSensitivity`;
-- [ ] metal contenido calculado;
-- [ ] metal recuperado calculado;
-- [ ] metal pagable calculado;
-- [ ] ingreso bruto calculado;
-- [ ] costos de proceso por ruta;
-- [ ] costo de mina aplicable;
-- [ ] tratamiento y refinación;
-- [ ] comercialización;
-- [ ] regalías;
-- [ ] margen operativo por ruta;
-- [ ] valor operativo descontado;
-- [ ] valor pendiente en stockpile;
-- [ ] valor in situ pendiente;
-- [ ] identidad de ruta preservada;
-- [ ] sin reclasificación automática Mill/Leach.
+- [x] `createIntegratedRouteEconomicInputs`;
+- [x] `validateIntegratedRouteEconomicInputs`;
+- [x] `buildIntegratedRouteEconomics`;
+- [x] `buildRouteEconomicSensitivity`;
+- [x] metal contenido calculado;
+- [x] metal recuperado calculado;
+- [x] metal pagable calculado;
+- [x] ingreso bruto calculado;
+- [x] costos de proceso por ruta;
+- [x] costo de mina aplicable;
+- [x] tratamiento y refinación;
+- [x] comercialización;
+- [x] regalías;
+- [x] margen operativo por ruta;
+- [x] valor operativo descontado;
+- [x] valor pendiente en stockpile;
+- [x] valor in situ pendiente;
+- [x] identidad de ruta preservada;
+- [x] sin reclasificación automática Mill/Leach.
 
 ## Resultados
 
-- [ ] masa fuente por ruta;
-- [ ] masa procesada por ruta;
-- [ ] ley de feed por ruta;
-- [ ] metal contenido;
-- [ ] metal recuperado;
-- [ ] metal pagable;
-- [ ] ingreso bruto;
-- [ ] costos por componente;
-- [ ] margen operativo;
-- [ ] valor operativo descontado;
-- [ ] margen unitario US$/t;
-- [ ] margen unitario US$/lb recuperada;
-- [ ] valor pendiente en stockpile;
-- [ ] valor pendiente in situ;
-- [ ] participación económica por ruta;
-- [ ] periodos con margen negativo;
-- [ ] sensibilidad de precio, recuperación y costo.
+- [x] masa fuente por ruta;
+- [x] masa procesada por ruta;
+- [x] ley de feed por ruta;
+- [x] metal contenido;
+- [x] metal recuperado;
+- [x] metal pagable;
+- [x] ingreso bruto;
+- [x] costos por componente;
+- [x] margen operativo;
+- [x] valor operativo descontado;
+- [x] margen unitario US$/t;
+- [x] margen unitario US$/lb recuperada;
+- [x] valor pendiente en stockpile;
+- [x] valor pendiente in situ;
+- [x] participación económica por ruta;
+- [x] periodos con margen negativo;
+- [x] sensibilidad de precio y costo.
 
-## Reconciliaciones
+## Reconciliaciones implementadas
 
-- [ ] masa por ruta cierra;
-- [ ] cobre contenido cierra;
-- [ ] cobre recuperado no supera contenido;
-- [ ] metal pagable no supera recuperado;
-- [ ] ingreso bruto cierra;
-- [ ] costos cierran;
-- [ ] margen = ingreso - costos;
-- [ ] valor realizado + pendiente cierra;
-- [ ] valor descontado no supera nominal con tasa positiva;
-- [ ] identidad de ruta preservada;
-- [ ] destinos desconocidos reportados;
-- [ ] ausencia de balances negativos imposibles.
+- [x] masa por ruta;
+- [x] cobre contenido;
+- [x] cobre recuperado no supera contenido;
+- [x] metal pagable no supera recuperado;
+- [x] ingreso bruto;
+- [x] costos;
+- [x] margen = ingreso - costos;
+- [x] valor realizado + pendiente;
+- [x] valor descontado no supera nominal con tasa positiva;
+- [x] identidad de ruta preservada;
+- [x] destinos desconocidos reportados;
+- [x] ausencia de balances negativos imposibles.
 
 ## Interfaz
 
-- [ ] panel `ECONOMÍA POR RUTA` creado;
-- [ ] F1–F6;
-- [ ] incremental / acumulado;
-- [ ] alturas 5/10/15/20 m;
-- [ ] base de costo;
-- [ ] precio editable;
-- [ ] recuperación editable por ruta;
-- [ ] pagabilidad editable por ruta;
-- [ ] costos y cargos editables;
-- [ ] regalía editable;
-- [ ] tasa de descuento editable;
-- [ ] sensibilidad configurable;
-- [ ] confirmación temporal `CU = %`;
-- [ ] tarjetas Mill y Leach;
-- [ ] tabla por periodo;
-- [ ] reconciliaciones visibles;
-- [ ] guardas metodológicas visibles;
+- [x] panel `ECONOMÍA POR RUTA` creado;
+- [x] F1–F6;
+- [x] incremental / acumulado;
+- [x] alturas 5/10/15/20 m;
+- [x] base de costo;
+- [x] precio editable;
+- [x] recuperación editable por ruta;
+- [x] pagabilidad editable por ruta;
+- [x] costos y cargos editables;
+- [x] regalía editable;
+- [x] tasa de descuento editable;
+- [x] sensibilidad visible;
+- [x] confirmación temporal `CU = %`;
+- [x] tarjetas Mill y Leach;
+- [x] tabla por periodo;
+- [x] reconciliaciones visibles;
+- [x] guardas metodológicas visibles;
 - [ ] sin superposición con dock inferior;
 - [ ] responsive validado.
 
