@@ -217,12 +217,18 @@ function selectPlantFeed(
   let feedMetal = 0;
   let reclaimed = 0;
 
-  const add = (lot: MaterialLot, amount: number) => {
-    const selected = take(lot, amount);
+  const add = (lot: MaterialLot, requestedMass: number): number => {
+    const reclaimLeft = Math.max(reclaimCapacityMt - reclaimed, 0);
+    const allowed = lot.source === 'stockpile'
+      ? Math.min(requestedMass, reclaimLeft)
+      : requestedMass;
+    if (allowed <= EPS) return 0;
+    const selected = take(lot, allowed);
     feed.push(selected);
     feedMass += selected.massMt;
     feedMetal += selected.massMt * selected.gradeCuPercent;
     if (selected.source === 'stockpile') reclaimed += selected.massMt;
+    return selected.massMt;
   };
 
   while (feedMass < plantCapacityMt - EPS) {
@@ -243,12 +249,15 @@ function selectPlantFeed(
       const low = lows[0];
       const highShare = (targetCuPercent - low.gradeCuPercent) / (high.gradeCuPercent - low.gradeCuPercent);
       const lowShare = 1 - highShare;
-      const highAvailable = availableMass(high, reclaimed, reclaimCapacityMt);
-      const lowAvailable = availableMass(low, reclaimed, reclaimCapacityMt);
+      const reclaimShare =
+        (high.source === 'stockpile' ? highShare : 0) +
+        (low.source === 'stockpile' ? lowShare : 0);
+      const reclaimLeft = Math.max(reclaimCapacityMt - reclaimed, 0);
       const total = Math.min(
         plantLeft,
-        highShare > EPS ? highAvailable / highShare : Number.POSITIVE_INFINITY,
-        lowShare > EPS ? lowAvailable / lowShare : Number.POSITIVE_INFINITY,
+        highShare > EPS ? availableMass(high, reclaimed, reclaimCapacityMt) / highShare : Number.POSITIVE_INFINITY,
+        lowShare > EPS ? availableMass(low, reclaimed, reclaimCapacityMt) / lowShare : Number.POSITIVE_INFINITY,
+        reclaimShare > EPS ? reclaimLeft / reclaimShare : Number.POSITIVE_INFINITY,
       );
       if (total > EPS) {
         add(high, total * highShare);
@@ -259,8 +268,10 @@ function selectPlantFeed(
 
     const currentGrade = feedMass > EPS ? feedMetal / feedMass : targetCuPercent;
     available.sort((a, b) => {
-      const scoreA = Math.abs(((feedMetal + a.gradeCuPercent * Math.min(plantLeft, availableMass(a, reclaimed, reclaimCapacityMt))) / (feedMass + Math.min(plantLeft, availableMass(a, reclaimed, reclaimCapacityMt)))) - targetCuPercent);
-      const scoreB = Math.abs(((feedMetal + b.gradeCuPercent * Math.min(plantLeft, availableMass(b, reclaimed, reclaimCapacityMt))) / (feedMass + Math.min(plantLeft, availableMass(b, reclaimed, reclaimCapacityMt)))) - targetCuPercent);
+      const massA = Math.min(plantLeft, availableMass(a, reclaimed, reclaimCapacityMt));
+      const massB = Math.min(plantLeft, availableMass(b, reclaimed, reclaimCapacityMt));
+      const scoreA = Math.abs(((feedMetal + a.gradeCuPercent * massA) / (feedMass + massA)) - targetCuPercent);
+      const scoreB = Math.abs(((feedMetal + b.gradeCuPercent * massB) / (feedMass + massB)) - targetCuPercent);
       return scoreA - scoreB || Math.abs(a.gradeCuPercent - currentGrade) - Math.abs(b.gradeCuPercent - currentGrade);
     });
     const lot = available[0];
@@ -430,7 +441,6 @@ export function buildBlockBenchStockpileBlending(
   const stockpileMargin = result.stockpile.reduce((sum, lot) => sum + lotMarginUsdM(lot), 0);
   const inSituMargin = result.remainders.reduce((sum, item) => sum + item.bench.metrics.selectedMarginUsdM * item.fraction, 0);
   const totalDiscounted = result.periods.reduce((sum, p) => sum + p.discountedOperatingMarginUsdM, 0);
-  const totalProcess = value.total.dsrlProcessMassMt;
   const freshProcess = result.periods.reduce((sum, p) => sum + p.freshProcessMassMt, 0);
   const direct = result.periods.reduce((sum, p) => sum + p.directFeedMassMt, 0);
   const reclaimed = result.periods.reduce((sum, p) => sum + p.reclaimedMassMt, 0);
@@ -499,6 +509,7 @@ export function buildBlockBenchStockpileBlending(
     notes: [
       'El stockpile conserva masa, ley y densidad de margen por lote.',
       'El blending prioriza lotes complementarios alto/bajo y luego completa por cercanía al objetivo.',
+      'La capacidad de reclaim se aplica al conjunto de lotes seleccionados por periodo.',
       'No se modelan pérdidas, oxidación ni recuperación variable por permanencia.',
       'El margen operativo descontado no es VAN.',
       'El resultado no es un plan minero ejecutable ni una declaración de reservas.',
