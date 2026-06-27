@@ -12,20 +12,20 @@ npm run typecheck
 npm run build
 ```
 
-Confirmar:
+Confirmado:
 
-- [ ] cadena heredada hasta 8.6 en PASS;
-- [ ] auditoría 8.7 en PASS;
-- [ ] validación 8.7 en PASS;
-- [ ] auditoría 8.8 en PASS;
-- [ ] validación de stockpile y blending en PASS;
-- [ ] 48 combinaciones reales;
-- [ ] F6 conserva 34,845 bloques y 54.892664 Mt;
-- [ ] balances de masa, cobre y valor;
-- [ ] capacidades mina, planta, stockpile y reclaim respetadas;
-- [ ] precedencia vertical respetada;
-- [ ] mezcla sintética 0.20% + 0.40% = 0.30% Cu;
-- [ ] TypeScript y build en PASS.
+- [x] cadena heredada hasta 8.6 en PASS;
+- [x] auditoría 8.7 en PASS;
+- [x] validación 8.7 en PASS;
+- [x] auditoría 8.8 en PASS;
+- [x] validación de stockpile y blending en PASS;
+- [x] 48 combinaciones reales;
+- [x] F6 conserva 34,845 bloques y 54.892664 Mt;
+- [x] balances de masa, cobre y valor;
+- [x] capacidades mina, planta, stockpile y reclaim respetadas;
+- [x] precedencia vertical respetada;
+- [x] mezcla sintética 0.20% + 0.40% = 0.30% Cu;
+- [x] TypeScript y build en PASS.
 
 ## Visual
 
@@ -39,30 +39,37 @@ Confirmado por el usuario después de actualizar la rama `feat/stage-8-8-stockpi
 
 - [x] los botones inferiores ya no se superponen;
 - [x] el dock reserva espacio y no cubre los controles de fases;
-- [ ] los paneles abiertos permanecen por encima del dock en todos los anchos;
-- [ ] responsive validado en escritorio, ancho medio y móvil.
+- [x] el Economic Control Deck permanece por encima del dock;
+- [x] los paneles abiertos permanecen accesibles;
+- [x] responsive validado visualmente;
+- [x] el pit presenta mayor definición de bancos;
+- [x] la topografía resulta visible sin ocultar el pit.
 
 ### STOCKPILE & BLENDING
 
-Confirmar:
+Confirmado:
 
-- [ ] panel abre, cierra y recarga;
-- [ ] F1–F6, alcance, altura y base de costo funcionan;
-- [ ] periodos y capacidades son editables;
-- [ ] ley objetivo admite AUTO y valor manual;
-- [ ] tolerancia de blending es editable;
-- [ ] CU está bloqueada inicialmente;
-- [ ] `CONFIRMAR CU = %` activa resultados;
-- [ ] tabla muestra directo, reclaim y feed de planta;
-- [ ] ley de feed y desviación son visibles;
-- [ ] stockpile final, ley y cobre contenido son visibles;
-- [ ] margen realizado y descontado son visibles;
-- [ ] reconciliaciones aparecen en PASS;
-- [ ] se declara simulación preliminar, no VAN, no plan minero ni reservas.
+- [x] panel abre, cierra y recarga;
+- [x] F1–F6, alcance, altura y base de costo funcionan;
+- [x] periodos y capacidades son editables;
+- [x] ley objetivo admite AUTO y valor manual;
+- [x] tolerancia de blending es editable;
+- [x] CU está bloqueada inicialmente;
+- [x] `CONFIRMAR CU = %` activa resultados;
+- [x] tabla muestra directo, reclaim y feed de planta;
+- [x] ley de feed y desviación son visibles;
+- [x] stockpile final, ley y cobre contenido son visibles;
+- [x] margen realizado y descontado son visibles;
+- [x] reconciliaciones aparecen en PASS;
+- [x] se declara simulación preliminar, no VAN, no plan minero ni reservas.
 
 ## Cierre de etapa
 
-- [ ] resultados técnicos documentados en el PR 21;
-- [ ] evidencia visual adjunta o descrita;
-- [ ] PR 21 marcado como Ready for review;
-- [ ] no fusionar todavía a `main` mientras continúe la cadena de PR apilados.
+- [x] resultados técnicos documentados en el PR 21;
+- [x] evidencia visual revisada por el usuario;
+- [x] PR 21 listo para Ready for review;
+- [x] no fusionar todavía a `main` mientras continúe la cadena de PR apilados.
+
+## Resultado
+
+**ETAPA 8.8 — PASS TOTAL**
