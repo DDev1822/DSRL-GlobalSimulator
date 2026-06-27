@@ -7,6 +7,36 @@ import {
   type BlockModelManifestFile,
 } from './blockModelParser';
 
+export interface BlockModelCatalogCacheState {
+  status: 'empty' | 'loading' | 'ready' | 'error';
+  loadCount: number;
+  hitCount: number;
+  loadedAtIso: string | null;
+  manifestUrl: string | null;
+  error: string | null;
+}
+
+interface CatalogCache {
+  manifestUrl: string | null;
+  promise: Promise<BlockModelCatalog> | null;
+  value: BlockModelCatalog | null;
+  state: BlockModelCatalogCacheState;
+}
+
+const cache: CatalogCache = {
+  manifestUrl: null,
+  promise: null,
+  value: null,
+  state: {
+    status: 'empty',
+    loadCount: 0,
+    hitCount: 0,
+    loadedAtIso: null,
+    manifestUrl: null,
+    error: null,
+  },
+};
+
 function candidateToPublicUrl(candidate: string): string {
   const normalized = candidate.replace(/\\/g, '/').replace(/^\.\//, '');
   if (normalized.startsWith('public/')) {
@@ -87,8 +117,8 @@ async function loadFirstValidCandidate(
   );
 }
 
-export async function loadBlockModelCatalog(
-  manifestUrl = '/data/block-model/block-model-manifest.json',
+async function loadCatalogUncached(
+  manifestUrl: string,
 ): Promise<BlockModelCatalog> {
   const response = await fetch(manifestUrl, { cache: 'no-store' });
   if (!response.ok) {
@@ -120,4 +150,74 @@ export async function loadBlockModelCatalog(
     control,
     reconciliation: reconcileBlockModelCatalog(primary, control),
   };
+}
+
+export function getBlockModelCatalogCacheState(): BlockModelCatalogCacheState {
+  return { ...cache.state };
+}
+
+export function invalidateBlockModelCatalogCache(): void {
+  cache.manifestUrl = null;
+  cache.promise = null;
+  cache.value = null;
+  cache.state = {
+    status: 'empty',
+    loadCount: cache.state.loadCount,
+    hitCount: cache.state.hitCount,
+    loadedAtIso: null,
+    manifestUrl: null,
+    error: null,
+  };
+}
+
+export async function loadBlockModelCatalog(
+  manifestUrl = '/data/block-model/block-model-manifest.json',
+  forceReload = false,
+): Promise<BlockModelCatalog> {
+  if (forceReload) invalidateBlockModelCatalogCache();
+
+  if (cache.value && cache.manifestUrl === manifestUrl) {
+    cache.state.hitCount += 1;
+    return cache.value;
+  }
+
+  if (cache.promise && cache.manifestUrl === manifestUrl) {
+    cache.state.hitCount += 1;
+    return cache.promise;
+  }
+
+  cache.manifestUrl = manifestUrl;
+  cache.state = {
+    ...cache.state,
+    status: 'loading',
+    loadCount: cache.state.loadCount + 1,
+    manifestUrl,
+    error: null,
+  };
+
+  cache.promise = loadCatalogUncached(manifestUrl)
+    .then((catalog) => {
+      cache.value = catalog;
+      cache.state = {
+        ...cache.state,
+        status: 'ready',
+        loadedAtIso: new Date().toISOString(),
+        error: null,
+      };
+      return catalog;
+    })
+    .catch((reason: unknown) => {
+      const message =
+        reason instanceof Error ? reason.message : 'Error desconocido de catálogo.';
+      cache.promise = null;
+      cache.value = null;
+      cache.state = {
+        ...cache.state,
+        status: 'error',
+        error: message,
+      };
+      throw reason;
+    });
+
+  return cache.promise;
 }
