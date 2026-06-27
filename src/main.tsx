@@ -5,6 +5,7 @@ import BenchPanel from './components/BenchPanel';
 import PhaseComparisonPanel from './components/PhaseComparisonPanel';
 import OptimalPhasePanel from './components/OptimalPhasePanel';
 import RecommendationRobustnessPanel from './components/RecommendationRobustnessPanel';
+import BlockModelQualityPanel from './components/BlockModelQualityPanel';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -14,5 +15,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <PhaseComparisonPanel />
     <OptimalPhasePanel />
     <RecommendationRobustnessPanel />
+    <BlockModelQualityPanel />
   </React.StrictMode>,
 );

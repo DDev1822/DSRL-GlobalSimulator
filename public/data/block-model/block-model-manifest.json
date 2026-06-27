@@ -1,13 +1,11 @@
 {
-  "contractVersion": "8.1.0",
+  "contractVersion": "8.2.0",
   "coordinateSystem": "LOCAL_MINE_GRID",
   "geometryUnits": "metres",
   "primaryModel": {
     "fileName": "simmodPL.csv",
     "expectedPathCandidates": [
-      "public/data/block-model/simmodPL.csv",
       "public/data/simmodPL.csv",
-      "data/block-model/simmodPL.csv",
       "data/simmodPL.csv"
     ],
     "observedRows": 49989,
@@ -23,9 +21,7 @@
   "controlModel": {
     "fileName": "OPDemo3PB.csv",
     "expectedPathCandidates": [
-      "public/data/block-model/OPDemo3PB.csv",
       "public/data/OPDemo3PB.csv",
-      "data/block-model/OPDemo3PB.csv",
       "data/OPDemo3PB.csv"
     ],
     "observedRows": 18981,
