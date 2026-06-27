@@ -2,101 +2,101 @@
 
 ## Contrato
 
-- [ ] `HaulageDestinationId` tipado;
-- [ ] `PreliminaryHaulageRouteDefinition` tipado;
-- [ ] `PreliminaryHaulageInputs` tipado;
-- [ ] `PreliminaryHaulagePeriodResult` tipado;
-- [ ] `PreliminaryHaulageRouteTotals` tipado;
-- [ ] `PreliminaryHaulageLogisticsReport` tipado;
-- [ ] Mill, Leach, Dump y stockpiles diferenciados;
-- [ ] `NPVPDEST` preservado;
-- [ ] supuestos DSRL separados de datos observados;
-- [ ] destinos desconocidos bloqueados y reportados.
+- [x] `HaulageDestinationId` tipado;
+- [x] `PreliminaryHaulageRouteDefinition` tipado;
+- [x] `PreliminaryHaulageInputs` tipado;
+- [x] `PreliminaryHaulagePeriodResult` tipado;
+- [x] `PreliminaryHaulageRouteTotals` tipado;
+- [x] `PreliminaryHaulageLogisticsReport` tipado;
+- [x] Mill, Leach, Dump, stockpiles y reclaim diferenciados;
+- [x] `NPVPDEST` preservado;
+- [x] supuestos DSRL separados de datos observados;
+- [x] destinos desconocidos bloqueados y reportados.
 
 ## Motor
 
-- [ ] `createPreliminaryHaulageInputs`;
-- [ ] `validatePreliminaryHaulageInputs`;
-- [ ] `buildPreliminaryHaulageLogistics`;
-- [ ] `buildHaulageSensitivity`;
-- [ ] tiempo cargado;
-- [ ] tiempo retorno vacío;
-- [ ] tiempo de ciclo;
-- [ ] camiones efectivos;
-- [ ] viajes requeridos;
-- [ ] capacidad por periodo;
-- [ ] déficit y holgura;
-- [ ] horas-camión;
-- [ ] combustible;
-- [ ] mantenimiento;
-- [ ] neumáticos;
-- [ ] otros costos;
-- [ ] costo total;
-- [ ] costo unitario US$/t;
-- [ ] tonelada-kilómetro;
-- [ ] margen antes y después del acarreo;
-- [ ] identidad de destino preservada;
-- [ ] sin reasignación automática de masa.
+- [x] `createPreliminaryHaulageInputs`;
+- [x] `validatePreliminaryHaulageInputs`;
+- [x] `buildPreliminaryHaulageLogistics`;
+- [x] `buildHaulageSensitivity`;
+- [x] tiempo cargado;
+- [x] tiempo retorno vacío;
+- [x] tiempo de ciclo;
+- [x] camiones efectivos;
+- [x] viajes requeridos;
+- [x] capacidad por periodo;
+- [x] déficit y holgura;
+- [x] horas-camión;
+- [x] combustible;
+- [x] mantenimiento;
+- [x] neumáticos;
+- [x] otros costos;
+- [x] costo total;
+- [x] costo unitario US$/t;
+- [x] tonelada-kilómetro;
+- [x] margen antes y después del acarreo;
+- [x] identidad de destino preservada;
+- [x] sin reasignación automática de masa.
 
 ## Resultados
 
-- [ ] masa transportada por ruta;
-- [ ] distancia cargado/vacío;
-- [ ] pendiente y resistencia declaradas;
-- [ ] tiempo de ciclo;
-- [ ] capacidad disponible;
-- [ ] utilización de capacidad;
-- [ ] déficit o holgura;
-- [ ] viajes;
-- [ ] horas-camión;
-- [ ] litros de combustible;
-- [ ] costo de combustible;
-- [ ] mantenimiento;
-- [ ] neumáticos;
-- [ ] otros costos;
-- [ ] costo logístico total;
-- [ ] costo unitario US$/t;
-- [ ] t-km;
-- [ ] margen previo;
-- [ ] margen posterior al acarreo;
-- [ ] cuello de botella logístico;
-- [ ] sensibilidad logística.
+- [x] masa transportada por ruta;
+- [x] distancia cargado/vacío;
+- [x] pendiente y resistencia declaradas;
+- [x] tiempo de ciclo;
+- [x] capacidad disponible;
+- [x] utilización de capacidad;
+- [x] déficit o holgura;
+- [x] viajes;
+- [x] horas-camión;
+- [x] litros de combustible;
+- [x] costo de combustible;
+- [x] mantenimiento;
+- [x] neumáticos;
+- [x] otros costos;
+- [x] costo logístico total;
+- [x] costo unitario US$/t;
+- [x] t-km;
+- [x] margen previo;
+- [x] margen posterior al acarreo;
+- [x] cuello de botella logístico;
+- [x] sensibilidad logística.
 
-## Reconciliaciones
+## Reconciliaciones implementadas
 
-- [ ] masa asignada cierra;
-- [ ] viajes × payload reconcilian con masa;
-- [ ] déficit reportado cuando demanda supera capacidad;
-- [ ] horas-camión no negativas;
-- [ ] combustible no negativo;
-- [ ] costos por componente cierran;
-- [ ] costo unitario × toneladas cierra;
-- [ ] margen posterior = margen previo - costo logístico;
-- [ ] identidad de destino preservada;
-- [ ] destinos desconocidos reportados;
-- [ ] ausencia de balances imposibles.
+- [x] masa asignada cierra;
+- [x] viajes × payload reconcilian con masa;
+- [x] déficit reportado cuando demanda supera capacidad;
+- [x] horas-camión no negativas;
+- [x] combustible no negativo;
+- [x] costos por componente cierran;
+- [x] costo unitario × toneladas cierra;
+- [x] margen posterior = margen previo - costo logístico;
+- [x] identidad de destino preservada;
+- [x] destinos desconocidos reportados;
+- [x] ausencia de balances imposibles.
 
 ## Interfaz
 
-- [ ] panel `ACARREO & LOGÍSTICA` creado;
-- [ ] F1–F6;
-- [ ] incremental / acumulado;
-- [ ] alturas 5/10/15/20 m;
-- [ ] base de costo;
-- [ ] distancias editables;
-- [ ] velocidades editables;
-- [ ] pendiente y RR editables;
-- [ ] payload editable;
-- [ ] flota editable;
-- [ ] disponibilidad y utilización editables;
-- [ ] tiempos fijos editables;
-- [ ] combustible y costos horarios editables;
-- [ ] confirmación temporal `CU = %`;
-- [ ] tarjetas por destino;
-- [ ] tabla por periodo;
-- [ ] sensibilidad visible;
-- [ ] reconciliaciones visibles;
-- [ ] guardas metodológicas visibles;
+- [x] panel `ACARREO & LOGÍSTICA` creado;
+- [x] F1–F6;
+- [x] incremental / acumulado;
+- [x] alturas 5/10/15/20 m;
+- [x] base de costo;
+- [x] distancias editables;
+- [x] velocidades editables;
+- [x] pendiente y RR editables;
+- [x] payload editable;
+- [x] flota editable;
+- [x] disponibilidad y utilización editables;
+- [x] tiempos fijos editables;
+- [x] combustible y costos horarios editables;
+- [x] confirmación temporal `CU = %`;
+- [x] tarjetas por destino;
+- [x] tabla por periodo;
+- [x] sensibilidad visible;
+- [x] reconciliaciones visibles;
+- [x] guardas metodológicas visibles;
 - [ ] sin superposición con dock inferior;
 - [ ] responsive validado.
 
@@ -127,6 +127,7 @@ npm run build
 - [ ] Leach validado;
 - [ ] Dump validado;
 - [ ] stockpiles Mill y Leach validados;
+- [ ] reclaim Mill y Leach validado;
 - [ ] destino desconocido reportado;
 - [ ] distancia 0;
 - [ ] velocidad inválida rechazada;
@@ -164,3 +165,7 @@ npm run dev
 - [ ] evidencia visual revisada;
 - [ ] PR marcado como Ready for review;
 - [ ] no fusionar todavía a `main` mientras continúe la cadena de PR apilados.
+
+## Estado
+
+**IMPLEMENTACIÓN COMPLETA · VALIDACIÓN LOCAL PENDIENTE**
