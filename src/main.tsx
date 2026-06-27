@@ -9,6 +9,7 @@ import BlockModelQualityPanel from './components/BlockModelQualityPanel';
 import BlockInventoryPanel from './components/BlockInventoryPanel';
 import BlockBenchInventoryPanel from './components/BlockBenchInventoryPanel';
 import BlockEconomicClassificationPanel from './components/BlockEconomicClassificationPanel';
+import BlockBenchEconomicValuePanel from './components/BlockBenchEconomicValuePanel';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -22,5 +23,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BlockInventoryPanel />
     <BlockBenchInventoryPanel />
     <BlockEconomicClassificationPanel />
+    <BlockBenchEconomicValuePanel />
   </React.StrictMode>,
 );
