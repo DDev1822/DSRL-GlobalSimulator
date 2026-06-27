@@ -64,13 +64,7 @@ Cuando la planta agota su capacidad y el banco accesible todavía contiene proce
 
 ## Cuellos de botella
 
-Cada periodo se clasifica como:
-
-- mina;
-- planta;
-- doble;
-- inventario agotado;
-- ninguno.
+Cada periodo se clasifica como mina, planta, doble, inventario agotado o ninguno.
 
 También se calcula el número de periodos requerido para completar el inventario con la capacidad configurada y se compara con el horizonte disponible.
 
@@ -80,23 +74,13 @@ También se calcula el número de periodos requerido para completar el inventari
 - proceso programado + pendiente = proceso total;
 - margen programado + pendiente = margen de 8.6 cuando DSRL está activo;
 - suma de tramos = total del periodo;
-- capacidad mina respetada;
-- capacidad planta respetada;
+- capacidad mina y planta respetadas;
 - precedencia vertical respetada;
 - asignaciones sin valores negativos.
 
 ## Limitaciones explícitas
 
-No se modelan:
-
-- stockpiles;
-- blending;
-- equipos y disponibilidad;
-- rutas y tiempos de acarreo;
-- restricciones geotécnicas;
-- accesos simultáneos;
-- precedencias espaciales dentro del banco;
-- recuperación variable por periodo.
+No se modelan stockpiles, blending, equipos, rutas, restricciones geotécnicas, accesos simultáneos ni precedencias espaciales dentro del banco.
 
 El resultado se denomina:
 
@@ -108,7 +92,11 @@ No constituye reserva, VAN ni plan de producción aprobado.
 
 ```bash
 npm install
-npm run verify:stage8-7
+npm run verify:stage8-6
+node scripts/audit-stage-8-7.mjs
+node scripts/validate-block-bench-preliminary-sequence.mjs
+npm run typecheck
+npm run build
 npm run dev
 ```
 
