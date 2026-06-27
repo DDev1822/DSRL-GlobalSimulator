@@ -8,7 +8,7 @@
   font-family: Inter, system-ui, sans-serif;
   color-scheme: dark;
   background: #020617;
-  --module-dock-reserved: 78px;
+  --module-dock-reserved: 117px;
 }
 
 html {
@@ -98,7 +98,6 @@ code,
   min-height: 0 !important;
 }
 
-/* El Control Deck ocupa una fila propia dentro del dashboard y nunca queda bajo el dock. */
 #root > .app-shell > .economic-control-drawer {
   position: static !important;
   inset: auto !important;
@@ -147,7 +146,7 @@ code,
 
 @media (max-width: 1200px) {
   :root {
-    --module-dock-reserved: 117px;
+    --module-dock-reserved: 156px;
   }
 
   #root {
@@ -161,7 +160,7 @@ code,
 
 @media (max-width: 760px) {
   :root {
-    --module-dock-reserved: 143px;
+    --module-dock-reserved: 185px;
   }
 
   #root {
